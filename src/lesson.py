@@ -266,7 +266,7 @@ def doTask(aDriver,aTaskName):
     elif aTaskName == "語句並べ替え":
         taskFour(aDriver)
     else:
-        pass
+        pass #エラー処理いる？
 
 #指定パートの８０点未満の問題全てやる
 def DoLesson(aDriver,aWait):
@@ -284,7 +284,7 @@ def DoLesson(aDriver,aWait):
         )
         for j in range(len(tTasksScore)):
             if not(tTasksScore[j].text.isdecimal() and int(tTasksScore[j].text) >= BASE_POINT):
-                print(f"[レッスン{i+1}]{tTasksName[j].text}が{BASE_POINT}点未満のため実行")
+                print(f"[レッスン{i+1}]<{tTasksName[j].text}>が{BASE_POINT}点未満のため実行")
                 tTasksName[j].click()
                 doTask(aDriver,tTasksName[j])
                 time.sleep(100)

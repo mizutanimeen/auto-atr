@@ -30,12 +30,12 @@ def Login(aDriver):
 
     #ログイン確認
     try:
-        _ = WebDriverWait(aDriver, 3).until( 
-            EC.element_to_be_clickable((By.CLASS_NAME, "login_err_content"))
+        _ = WebDriverWait(aDriver, 30).until(
+            EC.presence_of_element_located((By.ID, "large-button-class"))
         )
     except:
-        return #ログイン成功
-    raise ValueError("ログイン失敗")
+        raise ValueError("ログイン失敗")
+    return #成功
 
 def inputIndex(aElement):
     while True:

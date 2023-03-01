@@ -1,0 +1,19 @@
+version: "3.8"
+services:
+  selenium:
+    image: selenium/standalone-chrome:4.1.4-20220427
+    ports:
+      - 4444:4444
+      - 7900:7900
+  python3:
+    build: .
+    depends_on: 
+      - selenium
+    container_name: auto-atr
+    tty: true
+    ports:
+      - 8888:8888
+    environment:
+      SELENIUM_URL: http://selenium:4444/wd/hub
+    command: jupyter-notebook --port=8888 --ip=0.0.0.0 --allow-root --NotebookApp.token=''
+    env_file: .env

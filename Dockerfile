@@ -1,4 +1,10 @@
-FROM --platform=linux/amd64 python:3.10-slim
+FROM python:3.10
+
+ENV PYTHONIOENCODING utf-8
+ENV TZ="Asia/Tokyo"
+ENV LANG=C.UTF-8
+ENV LANGUAGE=en_US:en_US
+
 
 COPY / /project/
 

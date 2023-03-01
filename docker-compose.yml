@@ -5,6 +5,8 @@ services:
     ports:
       - 4444:4444
       - 7900:7900
+    volumes:
+      - /dev/shm:/dev/shm
   python3:
     build: .
     depends_on: 
@@ -17,3 +19,5 @@ services:
       SELENIUM_URL: http://selenium:4444/wd/hub
     command: jupyter-notebook --port=8888 --ip=0.0.0.0 --allow-root --NotebookApp.token=''
     env_file: .env
+    volumes:
+      - ./:/project/app

@@ -37,7 +37,15 @@ def Login(aDriver):
         return #ログイン成功
     raise ValueError("ログイン失敗")
 
-def Class(aDriver):
+def inputIndex(aElement):
+    while True:
+        tIndex = input('>> ')
+        if tIndex.isdecimal() and int(tIndex) < len(aElement):
+            return int(tIndex)
+
+def ClassCoursePart(aDriver):
+    tMessage = ""
+
     tElement = WebDriverWait(aDriver, 30).until(
         EC.presence_of_element_located((By.ID, "large-button-class"))
     )
@@ -46,23 +54,30 @@ def Class(aDriver):
     tElement = WebDriverWait(aDriver, 30).until(
         EC.presence_of_all_elements_located((By.CLASS_NAME, "class-list-item-name"))
     )
-    for i in tElement:
-        print(i.text())
-    print(tElement)
-    return
-    #Pre3-4  
-    element = WebDriverWait(aDriver, 100).until(
-        EC.presence_of_element_located((By.XPATH, '//*[@id="class_container"]/div[1]/a'))
+    for i in range(len(tElement)):
+        print(f"{i} : {tElement[i].text}")
+    print('クラスを選択してください。')
+    tIndex = inputIndex(tElement)
+    tMessage += f"{tElement[tIndex].text}\n"
+    tElement[tIndex].click()
+
+    tElement = WebDriverWait(aDriver, 30).until(
+        EC.presence_of_all_elements_located((By.CLASS_NAME, "class-detail-item-name"))
     )
-    element.click()
-    #Pre4  
-    element = WebDriverWait(aDriver, 100).until(
-        EC.presence_of_element_located((By.XPATH, '//*[@id="wpContents"]/div[2]/div[6]/div[1]'))
+    for i in range(len(tElement)):
+        print(f"{i} : {tElement[i].text}")
+    print('コースを選択してください。')
+    tIndex = inputIndex(tElement)
+    tMessage += f"{tElement[tIndex].text}\n"
+    tElement[tIndex].click()
+
+    tElement = WebDriverWait(aDriver, 30).until(
+        EC.presence_of_all_elements_located((By.CLASS_NAME, "none-bookmark"))
     )
-    element.click()
-    # パート
-    PART = 1 #ココ引数に変える
-    element = WebDriverWait(aDriver, 100).until(
-        EC.presence_of_element_located((By.XPATH, f'//*[@id="tab_root"]/li[{PART}]/a'))
-    )
-    element.click()
+    for i in range(len(tElement)):
+        print(f"{i} : {tElement[i].text}")
+    print('パートを選択してください。')
+    tIndex = inputIndex(tElement)
+    tMessage += f"{tElement[tIndex].text}\n"
+    tElement[tIndex].click()
+    return tMessage

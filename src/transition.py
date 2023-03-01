@@ -9,39 +9,47 @@ from selenium.webdriver.support.expected_conditions import presence_of_element_l
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 import os
 import argparse
+import time
 
-def login(aDriver):
-    print("login")
-    #ページに移動
-    url_login = "https://atr.meijo-u.net/"
-    aDriver.get(url_login)
+def Login(aDriver):
     #ログイン動作
-    element = WebDriverWait(aDriver, 30).until(
+    tElement = WebDriverWait(aDriver, 30).until(
         EC.presence_of_element_located((By.ID, "id"))
     )
-    element.clear()
-    element.send_keys(os.environ['ID'])
-    element = WebDriverWait(aDriver, 30).until(
+    tElement.clear()
+    tElement.send_keys(os.environ['ID'])
+    tElement = WebDriverWait(aDriver, 30).until(
         EC.presence_of_element_located((By.ID, "pw"))
     )
-    element.clear()
-    element.send_keys(os.environ['PASSWORD'])
-    element = WebDriverWait(aDriver, 30).until(
+    tElement.clear()
+    tElement.send_keys(os.environ['PASSWORD'])
+    tElement = WebDriverWait(aDriver, 30).until(
         EC.element_to_be_clickable((By.ID, "submit-button"))
     )
-    element.click()
-    print("ok")
-    print("ok")
-    print("ok")
-    print("ok")
-    print("ok")
-    aDriver.quit()
-    exit(1)
-    #class
-    element = WebDriverWait(aDriver, 100).until(
+    tElement.click()
+
+    #ログイン確認
+    try:
+        tElement = WebDriverWait(aDriver, 5).until(
+            EC.element_to_be_clickable((By.CLASS_NAME, "login_err_content"))
+        )
+    except:
+        return #ログイン成功
+    raise ValueError("ログイン失敗")
+
+def Class(aDriver):
+    tElement = WebDriverWait(aDriver, 30).until(
         EC.presence_of_element_located((By.ID, "large-button-class"))
     )
-    element.click()
+    tElement.click()
+
+    tElement = WebDriverWait(aDriver, 30).until(
+        EC.presence_of_all_elements_located((By.CLASS_NAME, "class-list-item-name"))
+    )
+    for i in tElement:
+        print(i.text())
+    print(tElement)
+    return
     #Pre3-4  
     element = WebDriverWait(aDriver, 100).until(
         EC.presence_of_element_located((By.XPATH, '//*[@id="class_container"]/div[1]/a'))

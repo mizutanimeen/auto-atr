@@ -10,8 +10,6 @@ from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 import os
 import argparse
 
-print(os.environ['ID'])
-print(os.environ['PASS'])
 
 parser = argparse.ArgumentParser(description='引数は必須')    # 2. パーサを作る
 

@@ -17,9 +17,6 @@ import lesson
 
 
 def main(aDriver):
-    tWait = WebDriverWait(driver=tDriver, timeout=30)
-
-    print("START")
     tUrl = "https://atr.meijo-u.net"
     if requests.get(tUrl).status_code != 200:
         print(tUrl + "にアクセスできませんでした。")
@@ -40,6 +37,7 @@ def main(aDriver):
     print(f"{tResult}に移動")
 
     try:
+        tWait = WebDriverWait(driver=tDriver, timeout=30)
         lesson.DoLesson(aDriver,tWait)
     except:
         traceback.print_exc()
@@ -47,6 +45,7 @@ def main(aDriver):
 
 if __name__ == "__main__":
     try:
+        print("START")
         tDriver = webdriver.Remote(
             command_executor = os.environ["SELENIUM_URL"],
             options = webdriver.ChromeOptions()

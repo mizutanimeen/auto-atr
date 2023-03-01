@@ -9,47 +9,8 @@ import os
 #問題を終わるとやった場所は開いたまま
 #別のところをやると他は閉じる
 
-#number番目の閉じてるバーを開く
-def BarOpen(aDriver,aNumber):
-    element = WebDriverWait(aDriver, 100).until(
-        EC.presence_of_element_located((By.XPATH, f'//*[@id="course-detail"]/div[{aNumber}]'))
-    )
-    element.click()
-def q_one_start(number,aDriver):
-    #レッスン number－1を開く
-    element = WebDriverWait(aDriver, 100).until(
-        EC.presence_of_element_located((By.XPATH, f'//*[@id="course-detail"]/div[{number}]/div[2]/div[2]/div[2]/div[1]'))
-    )
-    element.click()
+BASE_POINT = 80 #今後変えるかもしれないから定数に念のためしておく
 
-    #レッスン n－１の開始ボタン
-    element = WebDriverWait(aDriver, 100).until(
-        EC.presence_of_element_located((By.CLASS_NAME,'View-Button'))
-    )
-    element.click()
-def q_two_start(number,aDriver):
-    #レッスン number－2を開く
-    element = WebDriverWait(aDriver, 100).until(
-        EC.presence_of_element_located((By.XPATH, f'//*[@id="course-detail"]/div[{number}]/div[2]/div[2]/div[2]/div[2]'))
-    )
-    element.click()
-
-    #レッスン n－2の開始ボタン
-    element = WebDriverWait(aDriver, 100).until(
-        EC.presence_of_element_located((By.XPATH,'/html/body/div[3]/div[1]/div/div/div[3]'))
-    )
-    element.click()
-def q_three_start(number,aDriver):
-    #レッスン number－3を開く
-    element = WebDriverWait(aDriver, 100).until(
-        EC.presence_of_element_located((By.XPATH, f'//*[@id="course-detail"]/div[{number}]/div[2]/div[3]/div[2]/div'))
-    )
-    element.click()
-    #レッスン n－3の開始ボタン
-    element = WebDriverWait(aDriver, 100).until(
-        EC.presence_of_element_located((By.XPATH,'/html/body/div[3]/div[1]/div/div/div[2]'))
-    )
-    element.click()
 def q_one(number,aDriver,aWait):
     df = pd.read_csv(CSV_PATH, sep=",", encoding='cp932')
     df = df.loc[:,["e","j"]]
@@ -278,24 +239,54 @@ def q_three(number,aDriver,aWait):
     element.click()
     time.sleep(10)
 
+#単語訳：英日
+def taskOne(aDriver):
+    pass
+#単語訳：日英
+def taskTwo(aDriver):
+    pass
+#（聴）単語訳
+def taskThree(aDriver):
+    pass
+#語句並べ替え
+def taskFour(aDriver):
+    pass
+
+def doTask(aDriver,aTaskName):
+    tStartBtn = WebDriverWait(aDriver, 30).until(
+        EC.presence_of_element_located((By.XPATH, "/html/body/div[3]/div[1]/div/div/div[2]"))
+    )
+    tStartBtn.click()
+    if aTaskName == "単語訳：英日":
+        taskOne(aDriver)
+    elif aTaskName == "単語訳：日英":
+        taskTwo(aDriver)
+    elif aTaskName == "（聴）単語訳":
+        taskThree(aDriver)
+    elif aTaskName == "語句並べ替え":
+        taskFour(aDriver)
+    else:
+        pass
+
 #指定パートの８０点未満の問題全てやる
 def DoLesson(aDriver,aWait):
     aWait.until(EC.presence_of_all_elements_located)
     tBars = WebDriverWait(aDriver, 30).until(
         EC.presence_of_all_elements_located((By.CLASS_NAME, 'course-detail-unit-bar'))
     )
-    for bar in tBars:
-        bar.click()
+    for i in range(len(tBars)):
+        tBars[i].click()
         tTasksName = WebDriverWait(aDriver, 30).until(
             EC.presence_of_all_elements_located((By.CLASS_NAME, 'course-detail-brix-name'))
         )
         tTasksScore = WebDriverWait(aDriver, 30).until(
             EC.presence_of_all_elements_located((By.CLASS_NAME, 'course-detail-brix-hiscore'))
         )
-        for i in range(len(tTasksScore)):
-            if not(tTasksScore[i].text.isdecimal() and int(tTasksScore[i].text) >= 80):
-                print(tTasksName[i].text)
-                print(str(i)+"は80点未満")
-                tTasksName[i].click() #タスクスタートする
+        for j in range(len(tTasksScore)):
+            if not(tTasksScore[j].text.isdecimal() and int(tTasksScore[j].text) >= BASE_POINT):
+                print(f"[レッスン{i+1}]{tTasksName[j].text}が{BASE_POINT}点未満のため実行")
+                tTasksName[j].click()
+                doTask(aDriver,tTasksName[j])
+                time.sleep(100)
                 #戻ってきたら点数確認してリトライするか確認、ループで、2回以上はさすがにスキップとか
     return

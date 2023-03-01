@@ -13,6 +13,7 @@ import requests
 import traceback
 
 import transition
+import lesson
 
 
 def main(aDriver):
@@ -32,11 +33,17 @@ def main(aDriver):
         return
     print("ログイン成功")
     try:
-        tMessage = transition.ClassCoursePart(aDriver)
+        tResult = transition.ClassCoursePart(aDriver)
     except:
         traceback.print_exc()
         return
-    print(f"{tMessage}に移動")
+    print(f"{tResult}に移動")
+
+    try:
+        lesson.DoLesson(aDriver,tWait)
+    except:
+        traceback.print_exc()
+        return
 
 if __name__ == "__main__":
     try:

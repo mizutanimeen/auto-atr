@@ -13,24 +13,24 @@ import time
 
 def Login(aDriver):
     #ログイン動作
-    tElement = WebDriverWait(aDriver, 30).until(
+    tIdInput = WebDriverWait(aDriver, 30).until(
         EC.presence_of_element_located((By.ID, "id"))
     )
-    tElement.clear()
-    tElement.send_keys(os.environ['ID'])
-    tElement = WebDriverWait(aDriver, 30).until(
+    tIdInput.clear()
+    tIdInput.send_keys(os.environ['ID'])
+    tPassInput = WebDriverWait(aDriver, 30).until(
         EC.presence_of_element_located((By.ID, "pw"))
     )
-    tElement.clear()
-    tElement.send_keys(os.environ['PASSWORD'])
-    tElement = WebDriverWait(aDriver, 30).until(
+    tPassInput.clear()
+    tPassInput.send_keys(os.environ['PASSWORD'])
+    tSendBtn = WebDriverWait(aDriver, 30).until(
         EC.element_to_be_clickable((By.ID, "submit-button"))
     )
-    tElement.click()
+    tSendBtn.click()
 
     #ログイン確認
     try:
-        tElement = WebDriverWait(aDriver, 5).until(
+        _ = WebDriverWait(aDriver, 3).until( 
             EC.element_to_be_clickable((By.CLASS_NAME, "login_err_content"))
         )
     except:
@@ -44,40 +44,40 @@ def inputIndex(aElement):
             return int(tIndex)
 
 def ClassCoursePart(aDriver):
-    tMessage = ""
+    tResult = []
 
-    tElement = WebDriverWait(aDriver, 30).until(
+    tClassBtn = WebDriverWait(aDriver, 30).until(
         EC.presence_of_element_located((By.ID, "large-button-class"))
     )
-    tElement.click()
+    tClassBtn.click()
 
-    tElement = WebDriverWait(aDriver, 30).until(
+    tClasses = WebDriverWait(aDriver, 30).until(
         EC.presence_of_all_elements_located((By.CLASS_NAME, "class-list-item-name"))
     )
-    for i in range(len(tElement)):
-        print(f"{i} : {tElement[i].text}")
+    for i in range(len(tClasses)):
+        print(f"{i} : {tClasses[i].text}")
     print('クラスを選択してください。')
-    tIndex = inputIndex(tElement)
-    tMessage += f"{tElement[tIndex].text}\n"
-    tElement[tIndex].click()
+    tIndex = inputIndex(tClasses)
+    tResult.append(tClasses[tIndex].text)
+    tClasses[tIndex].click()
 
-    tElement = WebDriverWait(aDriver, 30).until(
+    tCourses = WebDriverWait(aDriver, 30).until(
         EC.presence_of_all_elements_located((By.CLASS_NAME, "class-detail-item-name"))
     )
-    for i in range(len(tElement)):
-        print(f"{i} : {tElement[i].text}")
+    for i in range(len(tCourses)):
+        print(f"{i} : {tCourses[i].text}")
     print('コースを選択してください。')
-    tIndex = inputIndex(tElement)
-    tMessage += f"{tElement[tIndex].text}\n"
-    tElement[tIndex].click()
+    tIndex = inputIndex(tCourses)
+    tResult.append(tCourses[tIndex].text)
+    tCourses[tIndex].click()
 
-    tElement = WebDriverWait(aDriver, 30).until(
+    tParts = WebDriverWait(aDriver, 30).until(
         EC.presence_of_all_elements_located((By.CLASS_NAME, "none-bookmark"))
     )
-    for i in range(len(tElement)):
-        print(f"{i} : {tElement[i].text}")
+    for i in range(len(tParts)):
+        print(f"{i} : {tParts[i].text}")
     print('パートを選択してください。')
-    tIndex = inputIndex(tElement)
-    tMessage += f"{tElement[tIndex].text}\n"
-    tElement[tIndex].click()
-    return tMessage
+    tIndex = inputIndex(tParts)
+    tResult.append(tParts[tIndex].text)
+    tParts[tIndex].click()
+    return tResult

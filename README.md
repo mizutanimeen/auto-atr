@@ -7,8 +7,8 @@ http://localhost:7900/ にアクセスし接続を押しパスワードに「sec
 
 docker-compose up -d --build
 
- docker exec auto-atr python main.py
+docker exec -it auto-atr python main.py
 
 
-
+.sample_envを参考に.envを作成しdocker-composeと同じディレクトリに置いてください
  

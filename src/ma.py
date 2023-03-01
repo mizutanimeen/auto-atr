@@ -12,7 +12,6 @@ import argparse
 
 print(os.environ['ID'])
 print(os.environ['PASS'])
-exit(1)
 
 parser = argparse.ArgumentParser(description='引数は必須')    # 2. パーサを作る
 

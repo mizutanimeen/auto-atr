@@ -35,6 +35,7 @@ def login(aDriver):
     print("ok")
     print("ok")
     print("ok")
+    aDriver.quit()
     exit(1)
     #class
     element = WebDriverWait(aDriver, 100).until(

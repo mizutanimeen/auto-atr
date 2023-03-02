@@ -14,9 +14,10 @@ import traceback
 
 import transition
 import lesson
-
+import data
 
 def main(aDriver):
+
     tUrl = "https://atr.meijo-u.net"
     if requests.get(tUrl).status_code != 200:
         print(tUrl + "にアクセスできませんでした。")
@@ -30,12 +31,16 @@ def main(aDriver):
         return
     print("ログイン成功")
     try:
-        tResult = transition.ClassCoursePart(aDriver)
+        tResult,tPart = transition.ClassCoursePart(aDriver)
     except:
         traceback.print_exc()
         return
     print(f"{tResult}に移動")
-
+    try:
+        tBaseDataPath = data.GetBaseDataPath(tResult,tPart)
+    except:
+        traceback.print_exc()
+        return
     try:
         tWait = WebDriverWait(driver=tDriver, timeout=30)
         lesson.DoLesson(aDriver,tWait)

@@ -80,4 +80,5 @@ def ClassCoursePart(aDriver):
     tIndex = inputIndex(tParts)
     tResult.append(tParts[tIndex].text)
     tParts[tIndex].click()
-    return tResult
+    tPart = tIndex + 1
+    return tResult,tPart

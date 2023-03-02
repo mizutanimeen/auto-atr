@@ -6,12 +6,16 @@ import time
 import pandas as pd
 import os
 
+import data
+
 #問題を終わるとやった場所は開いたまま
 #別のところをやると他は閉じる
 
 BASE_POINT = 80 #今後変えるかもしれないから定数に念のためしておく
 
 def q_one(number,aDriver,aWait):
+    #View-GeneralProgressIcon-correct
+    #View-GeneralProgressIcon-noncorrect の数で満点か、合ってたか間違っていたか判断できる
     df = pd.read_csv(CSV_PATH, sep=",", encoding='cp932')
     df = df.loc[:,["e","j"]]
     df = df.dropna(how='any',axis=0)
@@ -240,36 +244,37 @@ def q_three(number,aDriver,aWait):
     time.sleep(10)
 
 #単語訳：英日
-def taskOne(aDriver):
+def taskOne(aDriver,aDataPath):
+    data.DataEnJpOrganization(aDataPath)
     pass
 #単語訳：日英
-def taskTwo(aDriver):
+def taskTwo(aDriver,aDataPath):
     pass
 #（聴）単語訳
-def taskThree(aDriver):
+def taskThree(aDriver,aDataPath):
     pass
 #語句並べ替え
 def taskFour(aDriver):
     pass
 
-def doTask(aDriver,aTaskName):
+def doTask(aDriver,aTaskName,aDataPath):
     tStartBtn = WebDriverWait(aDriver, 30).until(
         EC.presence_of_element_located((By.XPATH, "/html/body/div[3]/div[1]/div/div/div[2]"))
     )
     tStartBtn.click()
     if aTaskName == "単語訳：英日":
-        taskOne(aDriver)
+        taskOne(aDriver,aDataPath)
     elif aTaskName == "単語訳：日英":
-        taskTwo(aDriver)
+        taskTwo(aDriver,aDataPath)
     elif aTaskName == "（聴）単語訳":
-        taskThree(aDriver)
+        taskThree(aDriver,aDataPath)
     elif aTaskName == "語句並べ替え":
         taskFour(aDriver)
     else:
         pass #エラー処理いる？
 
 #指定パートの８０点未満の問題全てやる
-def DoLesson(aDriver,aWait):
+def DoLesson(aDriver,aWait,aDataPath):
     aWait.until(EC.presence_of_all_elements_located)
     tBars = WebDriverWait(aDriver, 30).until(
         EC.presence_of_all_elements_located((By.CLASS_NAME, 'course-detail-unit-bar'))
@@ -286,7 +291,7 @@ def DoLesson(aDriver,aWait):
             if not(tTasksScore[j].text.isdecimal() and int(tTasksScore[j].text) >= BASE_POINT):
                 print(f"[レッスン{i+1}]<{tTasksName[j].text}>が{BASE_POINT}点未満のため実行")
                 tTasksName[j].click()
-                doTask(aDriver,tTasksName[j])
+                doTask(aDriver,tTasksName[j],aDataPath)
                 time.sleep(100)
                 #戻ってきたら点数確認してリトライするか確認、ループで、2回以上はさすがにスキップとか
     return

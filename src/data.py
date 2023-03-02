@@ -11,23 +11,38 @@ from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 import os
 import argparse
 import time
-
+import re
+import os
+import datetime
 
 
 #パス直書きしてるのよくない。
 #問題のとこでパスを完成させる
-def GetBaseDataPath(aResult,aPart):
+def GetBaseDataPath(aCourse,aPart):
     tBaseDataPath = "../data/"
-
+    tSG = re.findall('SG[0-9][0-9]',aCourse)
+    tBaseDataPath += f"{tSG[0]}p{aPart}"
     return tBaseDataPath
+
+def FileEnJpIfNotExistCreate(aPath):
+    if not os.path.isfile(aPath):   # notを付与することで、Falseの場合に実行（真(True)でない）
+        with open(aPath, "w") as f:   # ファイルを作成
+            f.write('english,japanese\n')
+    return
 
 #空白の要素や英語、日本語以外のカラム削除
 def DataEnJpOrganization(aPath): 
     tData = pd.read_csv(aPath, sep=",", encoding='utf_8')
-    tData = tData.loc[:,["e","j"]]
+    tData = tData.loc[:,["english","japanese"]]
     tData = tData.dropna(how='any',axis=0)
+    tData = tData.drop_duplicates(subset="english",keep=False)
+    tData = tData.drop_duplicates(subset="japanese",keep=False)
     tData.to_csv(aPath, sep=",", index = False, encoding='utf_8')
     return
+
+now = datetime.datetime.now()
+now = now.strftime("%y%m%d")
+
 
 
 # network

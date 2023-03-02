@@ -7,6 +7,8 @@ import pandas as pd
 import os
 
 import data
+import util
+import task
 
 #問題を終わるとやった場所は開いたまま
 #別のところをやると他は閉じる
@@ -14,23 +16,12 @@ import data
 BASE_POINT = 80 #今後変えるかもしれないから定数に念のためしておく
 
 def q_one(number,aDriver,aWait):
-    #View-GeneralProgressIcon-correct
-    #View-GeneralProgressIcon-noncorrect の数で満点か、合ってたか間違っていたか判断できる
-    df = pd.read_csv(CSV_PATH, sep=",", encoding='cp932')
-    df = df.loc[:,["e","j"]]
-    df = df.dropna(how='any',axis=0)
-    df.to_csv(CSV_PATH, index = False, encoding='cp932')
-
-    BarOpen(number)
-    q_one_start(number)
-    aWait.until(EC.presence_of_all_elements_located)
-    time.sleep(2)
-
     e_space = ""
     j_space = ""
     is_full = True
     check = []
     while True:
+        aWait.until(EC.presence_of_all_elements_located)
         if len(aDriver.find_elements(By.CLASS_NAME,'View-Button')) > 0 and len(aDriver.find_elements(By.CLASS_NAME,'View-Button')) != 5: #ココ怪しい
             break
         df = pd.read_csv(CSV_PATH, sep=",", encoding='cp932')
@@ -243,38 +234,74 @@ def q_three(number,aDriver,aWait):
     element.click()
     time.sleep(10)
 
+def taskOneRun(aDriver,aWait,aDataPath,aColumnName):
+    #View-GeneralProgressIcon-correct
+    #View-GeneralProgressIcon-noncorrect の数で満点か、合ってたか間違っていたか判断できる？
+    try: #終了判定 #確定で時間かかるの微妙
+        _ = WebDriverWait(aDriver, 5).until(EC.presence_of_all_elements_located((By.CLASS_NAME,"View-ResultNavi")))
+        return
+    except: pass
+
+    tData = pd.read_csv(aDataPath, sep=",", encoding='utf_8')
+    tQuestionElement = WebDriverWait(aDriver, 30).until( EC.presence_of_element_located((By.CLASS_NAME,'View-TrialExamination')) )
+    tSelectionsElement = util.GetSelectionsElement(aDriver)
+    print(tQuestionElement.text)
+
+    if tData[tData[aColumnName[0]] == tQuestionElement.text].empty: #データがない場合
+        tSelectionsElement[0].click()
+        try: #終了判定 #確定で時間かかるの微妙
+            _ = WebDriverWait(aDriver, 5).until(EC.presence_of_all_elements_located((By.CLASS_NAME,"View-ResultNavi")))
+            return 
+        except: pass
+        time.sleep(3)
+        task.TaskOneNotExistData(aDriver,tData,aDataPath,tQuestionElement,tSelectionsElement,aColumnName)
+    else: #データがある場合
+        task.TaskOneExistData(aDriver,tData,aDataPath,tQuestionElement,tSelectionsElement,aColumnName)
+
+    time.sleep(3)
+    taskOneRun(aDriver,aWait,aDataPath,aColumnName) #再帰
+
 #単語訳：英日
-def taskOne(aDriver,aDataPath):
-    data.DataEnJpOrganization(aDataPath)
-    pass
+def taskOne(aDriver,aWait,aBaseDataPath):
+    tColumnName = ["english","japanese"] #これよくない
+
+    tDataPath = aBaseDataPath + "je.csv"
+    data.FileEnJpIfNotExistCreate(tDataPath)
+    data.DataEnJpOrganization(tDataPath)
+    aWait.until(EC.presence_of_all_elements_located) #whileの中ではページ遷移してないから使えなさそう
+    print("回答開始")
+    taskOneRun(aDriver,aWait,tDataPath,tColumnName)
+    return
 #単語訳：日英
-def taskTwo(aDriver,aDataPath):
+def taskTwo(aDriver,aWait,aBaseDataPath):
     pass
 #（聴）単語訳
-def taskThree(aDriver,aDataPath):
+def taskThree(aDriver,aWait,aBaseDataPath):
     pass
 #語句並べ替え
-def taskFour(aDriver):
+def taskFour(aDriver,aWait):
     pass
 
-def doTask(aDriver,aTaskName,aDataPath):
+
+def doTask(aDriver,aWait,aTaskName,aBaseDataPath):
     tStartBtn = WebDriverWait(aDriver, 30).until(
         EC.presence_of_element_located((By.XPATH, "/html/body/div[3]/div[1]/div/div/div[2]"))
     )
     tStartBtn.click()
     if aTaskName == "単語訳：英日":
-        taskOne(aDriver,aDataPath)
+        taskOne(aDriver,aWait,aBaseDataPath)
     elif aTaskName == "単語訳：日英":
-        taskTwo(aDriver,aDataPath)
+        taskTwo(aDriver,aWait,aBaseDataPath)
     elif aTaskName == "（聴）単語訳":
-        taskThree(aDriver,aDataPath)
+        taskThree(aDriver,aWait,aBaseDataPath)
     elif aTaskName == "語句並べ替え":
-        taskFour(aDriver)
+        taskFour(aDriver,aWait)
     else:
         pass #エラー処理いる？
+    return
 
 #指定パートの８０点未満の問題全てやる
-def DoLesson(aDriver,aWait,aDataPath):
+def DoLesson(aDriver,aWait,aBaseDataPath):
     aWait.until(EC.presence_of_all_elements_located)
     tBars = WebDriverWait(aDriver, 30).until(
         EC.presence_of_all_elements_located((By.CLASS_NAME, 'course-detail-unit-bar'))
@@ -289,9 +316,10 @@ def DoLesson(aDriver,aWait,aDataPath):
         )
         for j in range(len(tTasksScore)):
             if not(tTasksScore[j].text.isdecimal() and int(tTasksScore[j].text) >= BASE_POINT):
-                print(f"[レッスン{i+1}]<{tTasksName[j].text}>が{BASE_POINT}点未満のため実行")
+                tTaskName = tTasksName[j].text
+                print(f"[レッスン{i+1}]<{tTaskName}>が{BASE_POINT}点未満のため実行")
                 tTasksName[j].click()
-                doTask(aDriver,tTasksName[j],aDataPath)
+                doTask(aDriver,aWait,tTaskName,aBaseDataPath)
                 time.sleep(100)
                 #戻ってきたら点数確認してリトライするか確認、ループで、2回以上はさすがにスキップとか
     return

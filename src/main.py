@@ -37,13 +37,13 @@ def main(aDriver):
         return
     print(f"{tResult}に移動")
     try:
-        tBaseDataPath = data.GetBaseDataPath(tResult,tPart)
+        tBaseDataPath = data.GetBaseDataPath(tResult[1],tPart)
     except:
         traceback.print_exc()
         return
     try:
         tWait = WebDriverWait(driver=tDriver, timeout=30)
-        lesson.DoLesson(aDriver,tWait)
+        lesson.DoLesson(aDriver,tWait,tBaseDataPath)
     except:
         traceback.print_exc()
         return

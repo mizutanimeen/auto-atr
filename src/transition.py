@@ -43,6 +43,7 @@ def inputIndex(aElement):
         if tIndex.isdecimal() and int(tIndex) < len(aElement):
             return int(tIndex)
 
+#移動先と移動したパートを配列と文字で返してる
 def ClassCoursePart(aDriver):
     tResult = []
 
@@ -80,5 +81,5 @@ def ClassCoursePart(aDriver):
     tIndex = inputIndex(tParts)
     tResult.append(tParts[tIndex].text)
     tParts[tIndex].click()
-    tPart = tIndex + 1
+    tPart = str(tIndex + 1)
     return tResult,tPart

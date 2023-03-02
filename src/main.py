@@ -43,10 +43,12 @@ def main(aDriver):
         return
     try:
         tWait = WebDriverWait(driver=tDriver, timeout=30)
-        lesson.DoLesson(aDriver,tWait,tBaseDataPath)
+        tResult = lesson.DoLesson(aDriver,tWait,tBaseDataPath)
     except:
         traceback.print_exc()
         return
+    for i in tResult:
+        print(i)
 
 if __name__ == "__main__":
     try:

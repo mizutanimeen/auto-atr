@@ -71,3 +71,5 @@ https://bluebirdofoz.hatenablog.com/entry/2021/06/07/221747#:~:text=%E6%A6%82%E8
 
 pandas 1.5.3
 https://pandas.pydata.org/docs/user_guide/index.html#user-guide
+
+ファイル構成なんとかしろ

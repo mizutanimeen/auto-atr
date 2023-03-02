@@ -30,7 +30,7 @@ def FileEnJpIfNotExistCreate(aPath):
             f.write('english,japanese\n')
     return
 
-#空白の要素や英語、日本語以外のカラム削除
+#空白の要素や英語、日本語以外のカラム削除、重複データ削除
 def DataEnJpOrganization(aPath): 
     tData = pd.read_csv(aPath, sep=",", encoding='utf_8')
     tData = tData.loc[:,["english","japanese"]]

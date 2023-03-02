@@ -15,95 +15,6 @@ import task
 
 BASE_POINT = 80 #今後変えるかもしれないから定数に念のためしておく
 
-def q_one(number,aDriver,aWait):
-    e_space = ""
-    j_space = ""
-    is_full = True
-    check = []
-    while True:
-        aWait.until(EC.presence_of_all_elements_located)
-        if len(aDriver.find_elements(By.CLASS_NAME,'View-Button')) > 0 and len(aDriver.find_elements(By.CLASS_NAME,'View-Button')) != 5: #ココ怪しい
-            break
-        df = pd.read_csv(CSV_PATH, sep=",", encoding='cp932')
-        e = WebDriverWait(aDriver, 10).until(
-            EC.presence_of_element_located((By.CLASS_NAME,'View-TrialExamination'))
-        )
-        j1 = WebDriverWait(aDriver, 10).until(
-            EC.presence_of_element_located((By.XPATH,'/html/body/div[3]/div[1]/div/div/div[5]/div/div[1]/div[1]'))
-        )
-        j2 = WebDriverWait(aDriver, 10).until(
-            EC.presence_of_element_located((By.XPATH,'/html/body/div[3]/div[1]/div/div/div[5]/div/div[2]/div[1]'))
-        )
-        #データがない場合
-        if df[df["e"] == e.text].empty:
-            e_space = e.text
-            j_space = j1.text #間違えた選択肢を２回踏まないように記録
-            j1.click()
-            time.sleep(4)
-            if len(aDriver.find_elements(By.CLASS_NAME,'View-Button')) > 0 and len(aDriver.find_elements(By.CLASS_NAME,'View-Button')) != 5: #ココ怪しい
-                break
-            time.sleep(2)
-            #合ってたら次のページにいってる
-            e = WebDriverWait(aDriver, 10).until(
-                EC.presence_of_element_located((By.CLASS_NAME,'View-TrialExamination'))
-            )
-            #間違えたかどうか判定
-            if e_space == e.text: #間違えたとき
-                is_full = False
-                j1 = WebDriverWait(aDriver, 10).until(
-                    EC.presence_of_element_located((By.XPATH,'/html/body/div[3]/div[1]/div/div/div[5]/div/div[1]/div[1]'))#選択肢取り直して
-                )
-                j2 = WebDriverWait(aDriver, 10).until(
-                    EC.presence_of_element_located((By.XPATH,'/html/body/div[3]/div[1]/div/div/div[5]/div/div[2]/div[1]'))
-                )
-                if j_space == j1.text: #前回と違う選択肢を選ぶ
-                    j2.click()
-                    df = df.append({"e":e.text,"j":j2.text}, ignore_index=True)
-                    df.to_csv(CSV_PATH, index = False, encoding='cp932')
-                elif j_space == j2.text:
-                    j1.click()
-                    df = df.append({"e":e.text,"j":j1.text}, ignore_index=True)
-                    df.to_csv(CSV_PATH, index = False, encoding='cp932')
-            else: #合ってたとき 
-                df = df.append({"e":e.text,"j":j1.text}, ignore_index=True)
-                df.to_csv(CSV_PATH, index = False, encoding='cp932')
-            time.sleep(4)
-        # 既にデータがある場合
-        else:
-            check.append(e.text)
-            if df[df["e"] == e.text].iat[0,1] == j1.text:
-                j1.click()
-                if check.count(e.text) > 3:
-                    check = []
-                    df.loc[df["e"] == e.text,"j"] = j2.text
-                    df.to_csv(CSV_PATH, index = False, encoding='cp932')
-            elif df[df["e"] == e.text].iat[0,1] == j2.text:
-                j2.click()
-                if check.count(e.text) > 3:
-                    check = []
-                    df.loc[df["e"] == e.text,"j"] = j1.text
-                    df.to_csv(CSV_PATH, index = False, encoding='cp932')
-            if check.count(e.text) > 4:
-                if check.count(e.text) % 2 == 0:
-                    df.loc[df["e"] == e.text,"j"] = j1.text
-                else:
-                    df.loc[df["e"] == e.text,"j"] = j2.text
-                df.to_csv(CSV_PATH, index = False, encoding='cp932')
-            time.sleep(4)
-
-    # [おわり]ボタン
-    aWait.until(EC.presence_of_all_elements_located)
-    if is_full: #100%だと復習ボタンがでてこないので分岐
-        element = WebDriverWait(aDriver, 100).until(
-            EC.presence_of_element_located((By.XPATH, '/html/body/div[3]/div[1]/div/div/div[2]/div'))
-        )
-        element.click()
-    else:
-        element = WebDriverWait(aDriver, 100).until(
-            EC.presence_of_element_located((By.XPATH, '/html/body/div[3]/div[1]/div/div/div[2]/div[2]'))
-        )
-        element.click()
-    time.sleep(10)
 def q_two(number,aDriver,aWait):
     #region df
     df = pd.read_csv(CSV_PATH, sep=",", encoding='cp932')
@@ -234,9 +145,7 @@ def q_three(number,aDriver,aWait):
     element.click()
     time.sleep(10)
 
-def taskOneRun(aDriver,aWait,aDataPath,aColumnName):
-    #View-GeneralProgressIcon-correct
-    #View-GeneralProgressIcon-noncorrect の数で満点か、合ってたか間違っていたか判断できる？
+def taskOneTwoRun(aDriver,aWait,aDataPath,aColumnName):
     try: #終了判定 #確定で時間かかるの微妙
         _ = WebDriverWait(aDriver, 5).until(EC.presence_of_all_elements_located((By.CLASS_NAME,"View-ResultNavi")))
         return
@@ -248,19 +157,13 @@ def taskOneRun(aDriver,aWait,aDataPath,aColumnName):
     print(tQuestionElement.text)
 
     if tData[tData[aColumnName[0]] == tQuestionElement.text].empty: #データがない場合
-        tSelectionsElement[0].click()
-        try: #終了判定 #確定で時間かかるの微妙
-            _ = WebDriverWait(aDriver, 5).until(EC.presence_of_all_elements_located((By.CLASS_NAME,"View-ResultNavi")))
-            return 
-        except: pass
-        time.sleep(3)
-        task.TaskOneNotExistData(aDriver,tData,aDataPath,tQuestionElement,tSelectionsElement,aColumnName)
+        if task.TaskOneTwoNotExistData(aDriver,tData,aDataPath,tQuestionElement,tSelectionsElement,aColumnName):
+            return
     else: #データがある場合
-        task.TaskOneExistData(aDriver,tData,aDataPath,tQuestionElement,tSelectionsElement,aColumnName)
+        if task.TaskOneTwoExistData(aDriver,tData,aDataPath,tQuestionElement,tSelectionsElement,aColumnName):
+            return
 
-    time.sleep(3)
-    taskOneRun(aDriver,aWait,aDataPath,aColumnName) #再帰
-
+    taskOneTwoRun(aDriver,aWait,aDataPath,aColumnName) #再帰
 #単語訳：英日
 def taskOne(aDriver,aWait,aBaseDataPath):
     tColumnName = ["english","japanese"] #これよくない
@@ -269,12 +172,40 @@ def taskOne(aDriver,aWait,aBaseDataPath):
     data.FileEnJpIfNotExistCreate(tDataPath)
     data.DataEnJpOrganization(tDataPath)
     aWait.until(EC.presence_of_all_elements_located) #whileの中ではページ遷移してないから使えなさそう
+
     print("回答開始")
-    taskOneRun(aDriver,aWait,tDataPath,tColumnName)
-    return
+    taskOneTwoRun(aDriver,aWait,tDataPath,tColumnName)
+    
+    tScore = WebDriverWait(aDriver, 30).until( EC.presence_of_element_located((By.CLASS_NAME, "View-Header-ResultScoreValue")) )
+    tScore = int(tScore.text)
+    if tScore == 100:
+        tEndBtn = WebDriverWait(aDriver, 30).until( EC.presence_of_element_located((By.XPATH, "/html/body/div[3]/div[1]/div/div/div[2]/div")) )
+    else:
+        tEndBtn = WebDriverWait(aDriver, 30).until( EC.presence_of_element_located((By.XPATH, "/html/body/div[3]/div[1]/div/div/div[2]/div[2]")) )
+    tEndBtn.click()
+    return tScore
 #単語訳：日英
 def taskTwo(aDriver,aWait,aBaseDataPath):
-    pass
+    tColumnName = ["japanese","english"] #これよくない
+
+    tDataPath = aBaseDataPath + "je.csv"
+    data.FileEnJpIfNotExistCreate(tDataPath)
+    data.DataEnJpOrganization(tDataPath)
+    aWait.until(EC.presence_of_all_elements_located) #whileの中ではページ遷移してないから使えなさそう
+    
+    print("回答開始")
+    taskOneTwoRun(aDriver,aWait,tDataPath,tColumnName)
+    
+    tScore = WebDriverWait(aDriver, 30).until(
+        EC.presence_of_element_located((By.CLASS_NAME, "View-Header-ResultScoreValue"))
+    )
+    tScore = int(tScore.text)
+    if tScore == 100:
+        tEndBtn = WebDriverWait(aDriver, 30).until( EC.presence_of_element_located((By.XPATH, "/html/body/div[3]/div[1]/div/div/div[2]/div")) )
+    else:
+        tEndBtn = WebDriverWait(aDriver, 30).until( EC.presence_of_element_located((By.XPATH, "/html/body/div[3]/div[1]/div/div/div[2]/div[2]")) )
+    tEndBtn.click()
+    return tScore
 #（聴）単語訳
 def taskThree(aDriver,aWait,aBaseDataPath):
     pass
@@ -289,37 +220,51 @@ def doTask(aDriver,aWait,aTaskName,aBaseDataPath):
     )
     tStartBtn.click()
     if aTaskName == "単語訳：英日":
-        taskOne(aDriver,aWait,aBaseDataPath)
+        tScore = taskOne(aDriver,aWait,aBaseDataPath)
     elif aTaskName == "単語訳：日英":
-        taskTwo(aDriver,aWait,aBaseDataPath)
+        tScore = taskTwo(aDriver,aWait,aBaseDataPath)
     elif aTaskName == "（聴）単語訳":
-        taskThree(aDriver,aWait,aBaseDataPath)
+        tScore = taskThree(aDriver,aWait,aBaseDataPath)
+    elif aTaskName == "（聴）語句並べ替え":
+        tScore = taskFour(aDriver,aWait)
     elif aTaskName == "語句並べ替え":
-        taskFour(aDriver,aWait)
+        tScore = taskFour(aDriver,aWait)
     else:
-        pass #エラー処理いる？
-    return
+        tScore = 0 #エラーにする？
+    return tScore
 
 #指定パートの８０点未満の問題全てやる
 def DoLesson(aDriver,aWait,aBaseDataPath):
-    aWait.until(EC.presence_of_all_elements_located)
-    tBars = WebDriverWait(aDriver, 30).until(
-        EC.presence_of_all_elements_located((By.CLASS_NAME, 'course-detail-unit-bar'))
-    )
-    for i in range(len(tBars)):
-        tBars[i].click()
-        tTasksName = WebDriverWait(aDriver, 30).until(
-            EC.presence_of_all_elements_located((By.CLASS_NAME, 'course-detail-brix-name'))
+    tResult = []
+
+    for i in range(20):
+        aWait.until(EC.presence_of_all_elements_located)
+        tBars = WebDriverWait(aDriver, 30).until(
+            EC.presence_of_all_elements_located((By.CLASS_NAME, 'course-detail-unit-bar'))
         )
-        tTasksScore = WebDriverWait(aDriver, 30).until(
+        tBars[i].click()
+
+        tTasksScore = WebDriverWait(aDriver, 30).until(#２度手間になってるけどページ遷移すると取得したelementが使えなかったからこうしてる
             EC.presence_of_all_elements_located((By.CLASS_NAME, 'course-detail-brix-hiscore'))
         )
         for j in range(len(tTasksScore)):
+            tTasksScore = WebDriverWait(aDriver, 30).until(
+                EC.presence_of_all_elements_located((By.CLASS_NAME, 'course-detail-brix-hiscore'))
+            )
+            tTasksName = WebDriverWait(aDriver, 30).until(
+                EC.presence_of_all_elements_located((By.CLASS_NAME, 'course-detail-brix-name'))
+            )
+
             if not(tTasksScore[j].text.isdecimal() and int(tTasksScore[j].text) >= BASE_POINT):
                 tTaskName = tTasksName[j].text
                 print(f"[レッスン{i+1}]<{tTaskName}>が{BASE_POINT}点未満のため実行")
                 tTasksName[j].click()
-                doTask(aDriver,aWait,tTaskName,aBaseDataPath)
-                time.sleep(100)
+                tScore = doTask(aDriver,aWait,tTaskName,aBaseDataPath)
+
+                print(f"結果{tScore}点")
+                tResult.append(f"[レッスン{i+1}]<{tTaskName}>:{tScore}点")
+                time.sleep(10)
+                #スタンプ獲得も回避しないと
                 #戻ってきたら点数確認してリトライするか確認、ループで、2回以上はさすがにスキップとか
-    return
+
+    return tResult

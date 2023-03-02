@@ -7,6 +7,8 @@ http://localhost:7900/ にアクセスし接続を押しパスワードに「sec
 
 プロジェクトの一番上で以下のコマンドを実行する
 
+docker-compose build --no-cache
+
 docker-compose up -d --build
 
 docker exec -it auto-atr python main.py

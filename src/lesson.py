@@ -4,7 +4,8 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
 import pandas as pd
-import os
+import json
+import os 
 
 import data
 import util
@@ -42,7 +43,41 @@ def taskOneTwo(aDriver,aWait,aBaseDataPath,aColumnName):
     print("回答開始")
     taskOneTwoRun(aDriver,aWait,tDataPath,aColumnName)
     return
-    
+
+def taskThreeRun(aDriver, aDataPath):
+    try: #終了判定
+        _ = WebDriverWait(aDriver, 5).until(EC.presence_of_all_elements_located((By.CLASS_NAME,"View-ResultNavi")))
+        return
+    except: pass
+
+    tData = pd.read_csv(aDataPath, sep=",", encoding='utf_8')
+    tSelectionsElement = util.GetSelectionsElement(aDriver)
+    tOldSelectionsText = [tSelectionsElement[0].text,tSelectionsElement[1].text]
+
+    #データがない場合
+    if tData[((tData["one"] == tOldSelectionsText[0]) | (tData["one"] == tOldSelectionsText[1])) &\
+         ((tData["two"] == tOldSelectionsText[0]) | (tData["two"] == tOldSelectionsText[1]))].empty: #キー直打ちやめる
+        if task.TaskThreeNotExistData(aDriver,tData,aDataPath,tSelectionsElement,tOldSelectionsText):
+            return
+    else: #データがある場合
+        if task.TaskThreeExistData(aDriver,tData,aDataPath,tSelectionsElement,tOldSelectionsText):
+            return
+
+    taskThreeRun(aDriver,aDataPath)
+    return
+
+#（聴）単語訳
+def taskThree(aDriver,aWait,aBaseDataPath):
+    print("3start")
+    tDataPath = aBaseDataPath + "li.csv"
+    data.FileLiIfNotExistCreate(tDataPath)
+    data.DataLiOrganization(tDataPath)
+    aWait.until(EC.presence_of_all_elements_located) #whileの中ではページ遷移してないから使えなさそう
+
+    print("回答開始")
+    taskThreeRun(aDriver,tDataPath)
+    return 
+
 def taskFourRun(aDriver,aWait):
     try:
         tCards = WebDriverWait(aDriver, 5).until(
@@ -61,14 +96,14 @@ def taskFourRun(aDriver,aWait):
         time.sleep(3)
     taskFourRun(aDriver,aWait)
     return
-    
-#（聴）単語訳
-def taskThree(aDriver,aWait):
-    pass
+
 #語句並べ替え
 def taskFour(aDriver,aWait):
     aWait.until(EC.presence_of_all_elements_located) #whileの中ではページ遷移してないから使えなさそう
+    
+    print("回答開始")
     taskFourRun(aDriver,aWait)
+    return
 
 def taskFinish(aDriver):
     tScore = WebDriverWait(aDriver, 30).until( EC.presence_of_element_located((By.CLASS_NAME, "View-Header-ResultScoreValue")) )
@@ -85,7 +120,7 @@ def doTask(aDriver,aWait,aTaskName,aBaseDataPath):
         EC.presence_of_element_located((By.XPATH, "/html/body/div[3]/div[1]/div/div/div[2]"))
     )
     tStartBtn.click()
-    if aTaskName == "単語訳：英日":
+    if aTaskName == "単語訳：英日": #ここら辺の名前の分岐、BW03みたいなやつ参照の方がよい？
         tColumnName = ["english","japanese"] #これよくなさそう
         taskOneTwo(aDriver,aWait,aBaseDataPath,tColumnName)
     elif aTaskName == "単語訳：日英":

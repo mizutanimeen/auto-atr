@@ -43,11 +43,15 @@ def main(aDriver):
         return
     try:
         tWait = WebDriverWait(driver=tDriver, timeout=30)
-        tResult = lesson.DoLesson(aDriver,tWait,tBaseDataPath)
+        tResult,tLessResult = lesson.DoLesson(aDriver,tWait,tBaseDataPath)
     except:
         traceback.print_exc()
         return
+    print("-----全ての結果-----")
     for i in tResult:
+        print(i)
+    print("-----80点未満の結果-----")
+    for i in tLessResult:
         print(i)
 
 if __name__ == "__main__":

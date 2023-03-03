@@ -10,7 +10,7 @@ def TaskOneTwoNotExistData(aDriver,aData,aDataPath,aQuestionElement,aSelectionsE
     tOldQuestionText = aQuestionElement.text
     tOldSelectionsText = [aSelectionsElement[0].text,aSelectionsElement[1].text]
     aSelectionsElement[0].click()
-    try: #終了判定 #確定で時間かかるの微妙
+    try: #終了判定
         _ = WebDriverWait(aDriver, 5).until(EC.presence_of_all_elements_located((By.CLASS_NAME,"View-ResultNavi")))
         return True
     except: pass
@@ -28,7 +28,6 @@ def TaskOneTwoNotExistData(aDriver,aData,aDataPath,aQuestionElement,aSelectionsE
                 aColumnName[1]: [tOldSelectionsText[1]]}
         )
         aData = pd.concat([aData,tNewData],ignore_index=True)
-        # aData = aData.append({aColumnName[0]:tOldQuestionText,aColumnName[1]:tOldSelectionsText[1]}, ignore_index=True)
    
     #合っていた場合
     else:
@@ -37,12 +36,10 @@ def TaskOneTwoNotExistData(aDriver,aData,aDataPath,aQuestionElement,aSelectionsE
                 aColumnName[1]: [tOldSelectionsText[0]]}
         )
         aData = pd.concat([aData,tNewData],ignore_index=True)
-        # aData = aData.append({aColumnName[0]:tOldQuestionText,aColumnName[1]:tOldSelectionsText[0]}, ignore_index=True)
     
     aData.to_csv(aDataPath, index = False, encoding='utf_8')
     return False
 
-#間違って記録された時の対処必要だわ
 def TaskOneTwoExistData(aDriver,aData,aDataPath,aQuestionElement,aSelectionElements,aColumnName):
     tOldQuestionText = aQuestionElement.text
 
@@ -53,7 +50,7 @@ def TaskOneTwoExistData(aDriver,aData,aDataPath,aQuestionElement,aSelectionEleme
         aSelectionElements[1].click()
         aData.loc[aData[aColumnName[0]] == tOldQuestionText,aColumnName[1]] = aSelectionElements[0].text
    
-    try: #終了判定 #確定で時間かかるの微妙
+    try: #終了判定
         _ = WebDriverWait(aDriver, 5).until(EC.presence_of_all_elements_located((By.CLASS_NAME,"View-ResultNavi")))
         return True
     except: pass

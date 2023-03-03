@@ -40,8 +40,6 @@ def DataEnJpOrganization(aPath):
     tData.to_csv(aPath, sep=",", index = False, encoding='utf_8')
     return
 
-now = datetime.datetime.now()
-now = now.strftime("%y%m%d")
 
 
 

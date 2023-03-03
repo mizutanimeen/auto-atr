@@ -1,18 +1,10 @@
 from selenium import webdriver
-from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-import time
-import pandas as pd
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.support.expected_conditions import presence_of_element_located
-from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 import os
-import argparse
 import requests
 import traceback
-import json
 from selenium import webdriver
+import time
 
 import transition
 import lesson
@@ -62,6 +54,7 @@ def main(aDriver):
 if __name__ == "__main__":
     try:
         print("START")
+        tStartTime = time.time()
         tDriver = webdriver.Remote(
             command_executor = os.environ["SELENIUM_URL"],
             options = webdriver.ChromeOptions()
@@ -69,4 +62,5 @@ if __name__ == "__main__":
         main(tDriver)
     finally:
         tDriver.quit()
+        print(f"経過時間：{format((time.time() - tStartTime)/60, '.2f')}分")
         print("FINISH")

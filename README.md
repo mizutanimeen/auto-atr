@@ -80,3 +80,5 @@ https://pandas.pydata.org/docs/user_guide/index.html#user-guide
 
 
 関数名とファイル名、整理する
+
+現状報告のログ追加する

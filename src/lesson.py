@@ -1,3 +1,4 @@
+from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -10,69 +11,69 @@ import task
 
 BASE_POINT = 80 #今後変えるかもしれないから定数に念のためしておく
 
-def taskOneTwoRun(aDriver,aWait,aDataPath,aColumnName):
+def taskOneTwoRun(aDriver: webdriver.Remote,aWait: WebDriverWait,aFilePath: str,aColumnName: str[2]) -> None:
     try: #終了判定
         _ = WebDriverWait(aDriver, 5).until(EC.presence_of_all_elements_located((By.CLASS_NAME,"View-ResultNavi")))
         return
     except: pass
 
-    tData = pd.read_csv(aDataPath, sep=",", encoding='utf_8')
+    tData = pd.read_csv(aFilePath, sep=",", encoding='utf_8')
     tQuestionElement = WebDriverWait(aDriver, 30).until( EC.presence_of_element_located((By.CLASS_NAME,'View-TrialExamination')) )
     tSelectionsElement = util.GetSelectionsElement(aDriver)
     print(tQuestionElement.text)
 
     if tData[tData[aColumnName[0]] == tQuestionElement.text].empty: #データがない場合
-        if task.TaskOneTwoNotExistData(aDriver,tData,aDataPath,tQuestionElement,tSelectionsElement,aColumnName):
+        if task.TaskOneTwoNotExistData(aDriver,tData,aFilePath,tQuestionElement,tSelectionsElement,aColumnName):
             return
     else: #データがある場合
-        if task.TaskOneTwoExistData(aDriver,tData,aDataPath,tQuestionElement,tSelectionsElement,aColumnName):
+        if task.TaskOneTwoExistData(aDriver,tData,aFilePath,tQuestionElement,tSelectionsElement,aColumnName):
             return
 
-    taskOneTwoRun(aDriver,aWait,aDataPath,aColumnName) #再帰
+    taskOneTwoRun(aDriver,aWait,aFilePath,aColumnName) #再帰
 #単語訳：英日
 #単語訳：日英
 def taskOneTwo(aDriver,aWait,aBaseDataPath,aColumnName):
-    tDataPath = aBaseDataPath + "je.csv"
-    data.FileEnJpIfNotExistCreate(tDataPath)
-    data.DataEnJpOrganization(tDataPath)
+    tFilePath = aBaseDataPath + "je.csv"
+    data.FileEnJpIfNotExistCreate(tFilePath)
+    data.DataEnJpOrganization(tFilePath)
     aWait.until(EC.presence_of_all_elements_located) #whileの中ではページ遷移してないから使えなさそう
 
     print("回答開始")
-    taskOneTwoRun(aDriver,aWait,tDataPath,aColumnName)
+    taskOneTwoRun(aDriver,aWait,tFilePath,aColumnName)
     return
 
-def taskThreeRun(aDriver, aDataPath):
+def taskThreeRun(aDriver, aFilePath):
     try: #終了判定
         _ = WebDriverWait(aDriver, 5).until(EC.presence_of_all_elements_located((By.CLASS_NAME,"View-ResultNavi")))
         return
     except: pass
 
-    tData = pd.read_csv(aDataPath, sep=",", encoding='utf_8')
+    tData = pd.read_csv(aFilePath, sep=",", encoding='utf_8')
     tSelectionsElement = util.GetSelectionsElement(aDriver)
     tOldSelectionsText = [tSelectionsElement[0].text,tSelectionsElement[1].text]
 
     #データがない場合
     if tData[((tData["one"] == tOldSelectionsText[0]) | (tData["one"] == tOldSelectionsText[1])) &\
          ((tData["two"] == tOldSelectionsText[0]) | (tData["two"] == tOldSelectionsText[1]))].empty: #キー直打ちやめる
-        if task.TaskThreeNotExistData(aDriver,tData,aDataPath,tSelectionsElement,tOldSelectionsText):
+        if task.TaskThreeNotExistData(aDriver,tData,aFilePath,tSelectionsElement,tOldSelectionsText):
             return
     else: #データがある場合
-        if task.TaskThreeExistData(aDriver,tData,aDataPath,tSelectionsElement,tOldSelectionsText):
+        if task.TaskThreeExistData(aDriver,tData,aFilePath,tSelectionsElement,tOldSelectionsText):
             return
 
-    taskThreeRun(aDriver,aDataPath)
+    taskThreeRun(aDriver,aFilePath)
     return
 
 #（聴）単語訳
 def taskThree(aDriver,aWait,aBaseDataPath):
     print("3start")
-    tDataPath = aBaseDataPath + "li.csv"
-    data.FileLiIfNotExistCreate(tDataPath)
-    data.DataLiOrganization(tDataPath)
+    tFilePath = aBaseDataPath + "li.csv"
+    data.FileLiIfNotExistCreate(tFilePath)
+    data.DataLiOrganization(tFilePath)
     aWait.until(EC.presence_of_all_elements_located) #whileの中ではページ遷移してないから使えなさそう
 
     print("回答開始")
-    taskThreeRun(aDriver,tDataPath)
+    taskThreeRun(aDriver,tFilePath)
     return 
 
 def taskFourRun(aDriver,aWait):

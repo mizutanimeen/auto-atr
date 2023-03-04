@@ -4,8 +4,20 @@ from selenium.webdriver.support import expected_conditions as EC
 import pandas as pd
 import util
 
+class TaskManager():
+    driver = None
+    wait = None
+    filePath = None
+    data = None
+
+    def __init__(self,aDriver,afilePath,aWait) -> None:
+        self.driver = aDriver
+        self.wait = aWait
+        self.filePath = afilePath
+    
+
 #みずらい変数名なんとかしないと
-def TaskOneTwoNotExistData(aDriver,aData,aDataPath,aQuestionElement,aSelectionsElement,aColumnName):
+def TaskOneTwoNotExistData(aDriver,aData,aFilePath,aQuestionElement,aSelectionsElement,aColumnName):
     tOldQuestionText = aQuestionElement.text
     tOldSelectionsText = [aSelectionsElement[0].text,aSelectionsElement[1].text]
     aSelectionsElement[0].click()
@@ -16,7 +28,7 @@ def TaskOneTwoNotExistData(aDriver,aData,aDataPath,aQuestionElement,aSelectionsE
                 aColumnName[1]: [tOldSelectionsText[0]]}
         )
         aData = pd.concat([aData,tNewData],ignore_index=True)
-        aData.to_csv(aDataPath, index = False, encoding='utf_8')
+        aData.to_csv(aFilePath, index = False, encoding='utf_8')
         return True
     except: pass
     
@@ -41,10 +53,10 @@ def TaskOneTwoNotExistData(aDriver,aData,aDataPath,aQuestionElement,aSelectionsE
         )
         
     aData = pd.concat([aData,tNewData],ignore_index=True)
-    aData.to_csv(aDataPath, index = False, encoding='utf_8')
+    aData.to_csv(aFilePath, index = False, encoding='utf_8')
     return False
 
-def TaskOneTwoExistData(aDriver,aData,aDataPath,aQuestionElement,aSelectionsElement,aColumnName):
+def TaskOneTwoExistData(aDriver,aData,aFilePath,aQuestionElement,aSelectionsElement,aColumnName):
     tOldQuestionText = aQuestionElement.text
 
     if aData[aData[aColumnName[0]] == aQuestionElement.text][aColumnName[1]].iat[0] == aSelectionsElement[0].text:
@@ -63,11 +75,11 @@ def TaskOneTwoExistData(aDriver,aData,aDataPath,aQuestionElement,aSelectionsElem
     )
     # データがおかしい時
     if tQuestionElement.text == tOldQuestionText:
-        aData.to_csv(aDataPath, index = False, encoding='utf_8')
+        aData.to_csv(aFilePath, index = False, encoding='utf_8')
     return False
                 
 
-def TaskThreeNotExistData(aDriver,aData,aDataPath,aSelectionsElement,aOldSelectionsText):
+def TaskThreeNotExistData(aDriver,aData,aFilePath,aSelectionsElement,aOldSelectionsText):
     aSelectionsElement[0].click()
     try: #終了判定
         _ = WebDriverWait(aDriver, 5).until(EC.presence_of_all_elements_located((By.CLASS_NAME,"View-ResultNavi")))
@@ -77,7 +89,7 @@ def TaskThreeNotExistData(aDriver,aData,aDataPath,aSelectionsElement,aOldSelecti
                 "ans": [aOldSelectionsText[0]]}
         )
         aData = pd.concat([aData,tNewData],ignore_index=True)
-        aData.to_csv(aDataPath, index = False, encoding='utf_8')
+        aData.to_csv(aFilePath, index = False, encoding='utf_8')
         return True
     except: pass
     tSelectionsElement = util.GetSelectionsElement(aDriver)
@@ -98,11 +110,11 @@ def TaskThreeNotExistData(aDriver,aData,aDataPath,aSelectionsElement,aOldSelecti
                 "ans": [aOldSelectionsText[0]]}
         )
     aData = pd.concat([aData,tNewData],ignore_index=True)
-    aData.to_csv(aDataPath, index = False, encoding='utf_8')
+    aData.to_csv(aFilePath, index = False, encoding='utf_8')
     return False
 
 #処理合ってるかわからん、条件が冗長でわかりずらい、なんとかする
-def TaskThreeExistData(aDriver,aData,aDataPath,aSelectionsElement,aOldSelectionsText):
+def TaskThreeExistData(aDriver,aData,aFilePath,aSelectionsElement,aOldSelectionsText):
     if aData[((aData["one"] == aOldSelectionsText[0]) | (aData["one"] == aOldSelectionsText[1])) &\
          ((aData["two"] == aOldSelectionsText[0]) | (aData["two"] == aOldSelectionsText[1]))]["ans"].iat[0] == aSelectionsElement[0].text:
         aSelectionsElement[0].click()
@@ -123,6 +135,6 @@ def TaskThreeExistData(aDriver,aData,aDataPath,aSelectionsElement,aOldSelections
     # データがおかしい時
     if ((tSelectionsElement[0].text == aOldSelectionsText[0]) or (tSelectionsElement[0].text == aOldSelectionsText[1])) and \
         ((tSelectionsElement[1].text == aOldSelectionsText[0]) or (tSelectionsElement[1].text == aOldSelectionsText[1])):
-        aData.to_csv(aDataPath, index = False, encoding='utf_8')
+        aData.to_csv(aFilePath, index = False, encoding='utf_8')
     return False
 

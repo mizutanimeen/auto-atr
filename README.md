@@ -84,9 +84,9 @@ https://blog.mogmet.com/github-abecedarian-send-pull-request/
 - pythonの書き方わからん
 - printの場所もう少し整理する
 - 関数名とファイル名、構成、整理する
-
-
-
+- クラス化する
+- 関数の返り値書く
+- WebDriverWait(aDriver, 30)をaWaitで置き換えられる
 
 
                 

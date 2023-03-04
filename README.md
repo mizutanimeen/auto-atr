@@ -86,7 +86,13 @@ https://blog.mogmet.com/github-abecedarian-send-pull-request/
 - 関数名とファイル名、構成、整理する
 - クラス化する
 - 関数の返り値書く
+<<<<<<< HEAD
 - WebDriverWait(aDriver, 30)をaWaitで置き換えられる
+=======
+
+
+
+>>>>>>> 2cb643362d931a24dd111bbcbde5545e291a4c67
 
 
                 

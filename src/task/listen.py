@@ -3,33 +3,54 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import pandas as pd
-import task.util as util
+import os
 
-import data
+from . import util
+
+LISTEN_COLUMN_NAME = ["one","two","ans"]
 
 class TaskManager():
     driver: webdriver.Remote
     wait: WebDriverWait
     filePath: str
     data: pd.DataFrame
-    columnName: str[3] #[one,two,ans]
+    columnName: list[str]
 
     def __init__(self,aDriver: webdriver.Remote,aWait: WebDriverWait,aBaseDataPath: str) -> None:
         self.driver = aDriver
         self.wait = aWait
         self.filePath = aBaseDataPath + "li.csv"
-        self.columnName = ["one","two","ans"]
+        self.columnName = LISTEN_COLUMN_NAME
 
-        data.ListenFileIfNotExistCreate(self.filePath)
-        data.ListenDataOrganization(self.filePath)
+        self.ListenFileIfNotExistCreate()
+        self.ListenDataOrganization()
         return 
+    
+    def ListenFileIfNotExistCreate(self) -> None:
+        if not os.path.isfile(self.filePath):  
+            with open(self.filePath, "w") as f:   # ファイルを作成
+                f.write(f'{LISTEN_COLUMN_NAME[0]},{LISTEN_COLUMN_NAME[1]},{LISTEN_COLUMN_NAME[2]}\n')
+        return
+
+    #空白の要素や英語、日本語以外のカラム削除、重複データ削除
+    def ListenDataOrganization(self) -> None: 
+        tData = pd.read_csv(self.filePath, sep=",", encoding='utf_8')
+        tData = tData.loc[:,LISTEN_COLUMN_NAME]
+        tData = tData.dropna(how='any',axis=0)
+        tData = tData.drop_duplicates(subset=f"{LISTEN_COLUMN_NAME[0]}",keep=False)
+        tData = tData.drop_duplicates(subset=f"{LISTEN_COLUMN_NAME[1]}",keep=False)
+        tData = tData.drop_duplicates(subset=f"{LISTEN_COLUMN_NAME[2]}",keep=False)
+        tData.to_csv(self.filePath, sep=",", index = False, encoding='utf_8')
+        return
     
     def ReadData(self) -> None:
         tData = pd.read_csv(self.filePath, sep=",", encoding='utf_8')
         self.data = tData
         return 
     
-    def SaveData(self,aSelectionText:str[2],aAnswerText: str) -> None:
+    def SaveData(self,aSelectionText:list[str],aAnswerText: str) -> None:
+        if not len(aSelectionText) == 2:
+            raise ValueError("保存するために渡されたデータの数が２つではありません： ",aSelectionText)
         tNewData = pd.DataFrame(
             data={self.columnName[0]: [aSelectionText[0]], 
                 self.columnName[1]: [aSelectionText[1]],
@@ -49,13 +70,16 @@ class TaskManager():
         tSelectionsElement = util.GetSelectionsElement(self.driver)
         tOldSelectionsText = [tSelectionsElement[0].text,tSelectionsElement[1].text]
 
-        #データがない場合
-        if self.data[((self.data["one"] == tOldSelectionsText[0]) | (self.data["one"] == tOldSelectionsText[1])) &\
-            ((self.data["two"] == tOldSelectionsText[0]) | (self.data["two"] == tOldSelectionsText[1]))].empty: #キー直打ちやめる
-            if self.TaskNotExistData(self,tSelectionsElement,tOldSelectionsText):
+        tEqualsList = []
+        for i,j in [[0,0],[0,1],[1,0],[1,1]]:
+            tEqualsList.append(self.data[f"{LISTEN_COLUMN_NAME[i]}"] == tOldSelectionsText[j])
+        tEquals = ((tEqualsList[0] | tEqualsList[1]) & (tEqualsList[2] | tEqualsList[3]))
+        
+        if self.data[tEquals].empty:#データがない場合
+            if self.TaskNotExistData(tSelectionsElement,tOldSelectionsText):
                 return
         else: #データがある場合
-            if self.TaskExistData(self,tSelectionsElement,tOldSelectionsText):
+            if self.TaskExistData(tSelectionsElement,tOldSelectionsText):
                 return
 
         self.TaskRun()
@@ -71,11 +95,11 @@ class TaskManager():
         
         tSelectionsElement = util.GetSelectionsElement(self.driver)
 
-        tCheck = []
-        tCheck.append((tSelectionsElement[0].text == aOldSelectionsText[0]) or (tSelectionsElement[0].text == aOldSelectionsText[1]))
-        tCheck.append((tSelectionsElement[1].text == aOldSelectionsText[1]) or (tSelectionsElement[0].text == aOldSelectionsText[1]))
+        tEqualsList = []
+        tEqualsList.append((tSelectionsElement[0].text == aOldSelectionsText[0]) or (tSelectionsElement[0].text == aOldSelectionsText[1]))
+        tEqualsList.append((tSelectionsElement[1].text == aOldSelectionsText[1]) or (tSelectionsElement[0].text == aOldSelectionsText[1]))
 
-        if tCheck[0] and tCheck[1]:#間違ってた時
+        if tEqualsList[0] and tEqualsList[1]:#間違ってた時
             tSelectionsElement[1].click() if aOldSelectionsText[0] == tSelectionsElement[0].text else tSelectionsElement[0].click()
             self.SaveData([aOldSelectionsText[0],aOldSelectionsText[1]],aOldSelectionsText[1])
         else:#当たっていた時

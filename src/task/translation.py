@@ -3,26 +3,46 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import pandas as pd
-import task.util as util
+import os
 
-import data
+from . import util
+
+TRANSLATION_COLUMN_NAME=["english","japanese"]
 
 class TaskManager():
     driver: webdriver.Remote
     wait: WebDriverWait
     filePath: str
     data: pd.DataFrame
-    columnName: str[2] #[questionColumnName,selectionColumnName]
+    columnName: list[str]#[questionColumnName,selectionColumnName]
 
-    def __init__(self,aDriver: webdriver.Remote,aWait: WebDriverWait,aBaseDataPath: str,aColumnName: str[2]) -> None:
+    def __init__(self,aDriver: webdriver.Remote,aWait: WebDriverWait,aBaseDataPath: str,aColumnName: list[str]) -> None:
+        if not len(aColumnName) == 2:
+            raise ValueError("TaskManagerに渡されたColumnNameの数が２つではありません: ",aColumnName)
         self.driver = aDriver
         self.wait = aWait
         self.filePath = aBaseDataPath + "je.csv"
         self.columnName = aColumnName
 
-        data.TranslationFileIfNotExistCreate(self.filePath)
-        data.TranslationDataOrganization(self.filePath)
+        self.TranslationFileIfNotExistCreate()
+        self.TranslationDataOrganization()
         return 
+    
+    def TranslationFileIfNotExistCreate(self) -> None:
+        if not os.path.isfile(self.filePath):   
+            with open(self.filePath, "w") as f:   # ファイルを作成
+                f.write(f"{TRANSLATION_COLUMN_NAME[0]},{TRANSLATION_COLUMN_NAME[1]}\n")#直書きしてるのよくない
+        return
+
+    #空白の要素や英語、日本語以外のカラム削除、重複データ削除
+    def TranslationDataOrganization(self) -> None: 
+        tData = pd.read_csv(self.filePath, sep=",", encoding='utf_8')
+        tData = tData.loc[:,TRANSLATION_COLUMN_NAME]
+        tData = tData.dropna(how='any',axis=0)
+        tData = tData.drop_duplicates(subset=f"{TRANSLATION_COLUMN_NAME[0]}",keep=False)
+        tData = tData.drop_duplicates(subset=f"{TRANSLATION_COLUMN_NAME[1]}",keep=False)
+        tData.to_csv(self.filePath, sep=",", index = False, encoding='utf_8')
+        return
     
     def ReadData(self) -> None:
         tData = pd.read_csv(self.filePath, sep=",", encoding='utf_8')
@@ -54,10 +74,10 @@ class TaskManager():
         tEquals = (tQuestionData == tQuestionElement.text)
 
         if self.data[tEquals].empty: #データがない場合
-            if self.TaskNotExistData(self,tQuestionElement,tSelectionsElement):
+            if self.TaskNotExistData(tQuestionElement,tSelectionsElement):
                 return
         else: #データがある場合
-            if self.TaskExistData(self,tQuestionElement,tSelectionsElement):
+            if self.TaskExistData(tQuestionElement,tSelectionsElement):
                 return
 
         self.TaskRun() #再帰

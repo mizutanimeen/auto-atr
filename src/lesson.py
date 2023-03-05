@@ -2,7 +2,6 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
-from typing import Tuple
 
 import task.translation as translation
 import task.listen as listen
@@ -33,10 +32,10 @@ def doTask(aDriver,aWait,aTaskName,aBaseDataPath) -> int:
     
     if aTaskName == "単語訳：英日": #ここら辺の名前の分岐、BW03みたいなやつ参照の方がよい？
         tColumnName = ["english","japanese"] #これよくなさそう
-        tTaskManager = translation.TaskManager(aDriver=aDriver,aWait=aWait,aFilePath=aBaseDataPath,aColumnName=tColumnName)
+        tTaskManager = translation.TaskManager(aDriver=aDriver,aWait=aWait,aBaseDataPath=aBaseDataPath,aColumnName=tColumnName)
     elif aTaskName == "単語訳：日英":
         tColumnName = ["japanese","english"] #これよくなさそう
-        tTaskManager = translation.TaskManager(aDriver=aDriver,aWait=aWait,aFilePath=aBaseDataPath,aColumnName=tColumnName)
+        tTaskManager = translation.TaskManager(aDriver=aDriver,aWait=aWait,aBaseDataPath=aBaseDataPath,aColumnName=tColumnName)
     elif aTaskName == "（聴）単語訳":
         tTaskManager = listen.TaskManager(aDriver=aDriver,aWait=aWait,aBaseDataPath=aBaseDataPath)
     elif aTaskName == "（聴）語句並べ替え":
@@ -51,7 +50,7 @@ def doTask(aDriver,aWait,aTaskName,aBaseDataPath) -> int:
     return taskFinish(aWait)
 
 #指定パートの８０点未満の問題全てやる
-def DoLesson(aDriver,aWait,aBaseDataPath) -> Tuple[list, list]:
+def DoLesson(aDriver,aWait,aBaseDataPath):# -> list,list
     tResult = []
     tLessResult = []
     tTaskLen = 0

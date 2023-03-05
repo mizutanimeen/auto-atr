@@ -83,8 +83,7 @@ https://blog.mogmet.com/github-abecedarian-send-pull-request/
 ## メモ書き
 - pythonの書き方わからん
 - printの場所もう少し整理する
-- 関数名とファイル名、構成、整理する
-- クラス化する
-- 関数の返り値書く
-- WebDriverWait(aDriver, 30)をaWaitで置き換えられる
 - テストスクリプト作る
+- 終了判定を実行中の要素取得にした方が時間の自由度上がる
+- スタンプが増えたよエレメント <a href="javascript:void(0)">閉じる</a>
+- 設定からメッセージの表示を制限できるからこれで設定いける

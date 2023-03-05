@@ -10,7 +10,7 @@ import transition
 import lesson
 import data
 
-def main(aDriver):
+def main(aDriver) -> None:
     tUrl = "https://atr.meijo-u.net"
     if requests.get(tUrl).status_code != 200:
         print(tUrl + "にアクセスできませんでした。")
@@ -50,6 +50,7 @@ def main(aDriver):
     print("-----80点未満の結果-----")
     for i in tLessResult:
         print(i)
+    return
 
 if __name__ == "__main__":
     try:

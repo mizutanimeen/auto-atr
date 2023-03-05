@@ -27,24 +27,24 @@ class TaskManager():
         return 
     
     def ListenFileIfNotExistCreate(self) -> None:
-        if not os.path.isfile(self.filePath):  
+        if not os.path.isfile(path=self.filePath):  
             with open(self.filePath, "w") as f:   # ファイルを作成
                 f.write(f'{LISTEN_COLUMN_NAME[0]},{LISTEN_COLUMN_NAME[1]},{LISTEN_COLUMN_NAME[2]}\n')
         return
 
     #空白の要素や英語、日本語以外のカラム削除、重複データ削除
     def ListenDataOrganization(self) -> None: 
-        tData = pd.read_csv(self.filePath, sep=",", encoding='utf_8')
+        tData = pd.read_csv(filepath_or_buffer=self.filePath, sep=",", encoding='utf_8')
         tData = tData.loc[:,LISTEN_COLUMN_NAME]
         tData = tData.dropna(how='any',axis=0)
         tData = tData.drop_duplicates(subset=f"{LISTEN_COLUMN_NAME[0]}",keep=False)
         tData = tData.drop_duplicates(subset=f"{LISTEN_COLUMN_NAME[1]}",keep=False)
         tData = tData.drop_duplicates(subset=f"{LISTEN_COLUMN_NAME[2]}",keep=False)
-        tData.to_csv(self.filePath, sep=",", index = False, encoding='utf_8')
+        tData.to_csv(path_or_buf=self.filePath, sep=",", index = False, encoding='utf_8')
         return
     
     def ReadData(self) -> None:
-        tData = pd.read_csv(self.filePath, sep=",", encoding='utf_8')
+        tData = pd.read_csv(filepath_or_buffer=self.filePath, sep=",", encoding='utf_8')
         self.data = tData
         return 
     
@@ -56,8 +56,8 @@ class TaskManager():
                 self.columnName[1]: [aSelectionText[1]],
                 self.columnName[2]: [aAnswerText]}
         )
-        self.data = pd.concat([self.data,tNewData],ignore_index=True)
-        self.data.to_csv(self.filePath, index = False, encoding='utf_8')
+        self.data = pd.concat(objs=[self.data,tNewData],ignore_index=True)
+        self.data.to_csv(path_or_buf=self.filePath, index = False, encoding='utf_8')
         return 
 
     def TaskRun(self) -> None:
@@ -89,7 +89,7 @@ class TaskManager():
         aSelectionsElement[0].click()
         try: #終了判定
             _ = WebDriverWait(driver=self.driver, timeout=5).until(EC.presence_of_all_elements_located((By.CLASS_NAME,"View-ResultNavi")))
-            self.SaveData([aOldSelectionsText[0],aOldSelectionsText[1]],aOldSelectionsText[0])
+            self.SaveData(aSelectionText=[aOldSelectionsText[0],aOldSelectionsText[1]],aAnswerText=aOldSelectionsText[0])
             return True
         except: pass
         
@@ -101,9 +101,9 @@ class TaskManager():
 
         if tEqualsList[0] and tEqualsList[1]:#間違ってた時
             tSelectionsElement[1].click() if aOldSelectionsText[0] == tSelectionsElement[0].text else tSelectionsElement[0].click()
-            self.SaveData([aOldSelectionsText[0],aOldSelectionsText[1]],aOldSelectionsText[1])
+            self.SaveData(aSelectionText=[aOldSelectionsText[0],aOldSelectionsText[1]],aAnswerText=aOldSelectionsText[1])
         else:#当たっていた時
-            self.SaveData([aOldSelectionsText[0],aOldSelectionsText[1]],aOldSelectionsText[0])
+            self.SaveData(aSelectionText=[aOldSelectionsText[0],aOldSelectionsText[1]],aAnswerText=aOldSelectionsText[0])
 
         return False
 
@@ -133,6 +133,6 @@ class TaskManager():
 
         # データがおかしい時
         if (tEqualsList[0] or tEqualsList[1]) and (tEqualsList[2] or tEqualsList[3]):
-            self.data.to_csv(self.filePath, index = False, encoding='utf_8')
+            self.data.to_csv(path_or_buf=self.filePath, index = False, encoding='utf_8')
 
         return False

@@ -5,7 +5,6 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.alert import Alert
 import os
-import time
 
 def Login(aWait: WebDriverWait) -> None:
     #ログイン動作

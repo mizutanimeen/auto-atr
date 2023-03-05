@@ -62,12 +62,12 @@ class TaskManager():
 
     def TaskRun(self) -> None:
         try: #終了判定
-            _ = WebDriverWait(self.driver, 5).until(EC.presence_of_all_elements_located((By.CLASS_NAME,"View-ResultNavi")))
+            _ = WebDriverWait(driver=self.driver, timeout=5).until(EC.presence_of_all_elements_located((By.CLASS_NAME,"View-ResultNavi")))
             return
         except: pass
 
         self.ReadData()
-        tSelectionsElement = util.GetSelectionsElement(self.driver)
+        tSelectionsElement = util.GetSelectionsElement(aWait=self.wait)
         tOldSelectionsText = [tSelectionsElement[0].text,tSelectionsElement[1].text]
 
         tEqualsList = []
@@ -88,12 +88,12 @@ class TaskManager():
     def TaskNotExistData(self,aSelectionsElement,aOldSelectionsText) -> bool:
         aSelectionsElement[0].click()
         try: #終了判定
-            _ = WebDriverWait(self.driver, 5).until(EC.presence_of_all_elements_located((By.CLASS_NAME,"View-ResultNavi")))
+            _ = WebDriverWait(driver=self.driver, timeout=5).until(EC.presence_of_all_elements_located((By.CLASS_NAME,"View-ResultNavi")))
             self.SaveData([aOldSelectionsText[0],aOldSelectionsText[1]],aOldSelectionsText[0])
             return True
         except: pass
         
-        tSelectionsElement = util.GetSelectionsElement(self.driver)
+        tSelectionsElement = util.GetSelectionsElement(aWait=self.wait)
 
         tEqualsList = []
         tEqualsList.append((tSelectionsElement[0].text == aOldSelectionsText[0]) or (tSelectionsElement[0].text == aOldSelectionsText[1]))
@@ -121,11 +121,11 @@ class TaskManager():
             self.data.loc[tEquals,self.columnName[2]] = aSelectionsElement[0].text
         
         try: #終了判定
-            _ = WebDriverWait(self.driver, 5).until(EC.presence_of_all_elements_located((By.CLASS_NAME,"View-ResultNavi")))
+            _ = WebDriverWait(driver=self.driver, timeout=5).until(EC.presence_of_all_elements_located((By.CLASS_NAME,"View-ResultNavi")))
             return True
         except: pass
 
-        tSelectionsElement = util.GetSelectionsElement(self.driver)
+        tSelectionsElement = util.GetSelectionsElement(aWait=self.wait)
 
         tEqualsList = []
         for i,j in [[0,0],[0,1],[1,0],[1,1]]:

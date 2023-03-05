@@ -15,7 +15,7 @@ class TaskManager():
 
     def TaskRun(self) -> None:
         try:
-            tCards = WebDriverWait(self.driver, 10).until(EC.presence_of_all_elements_located((By.CLASS_NAME, 'View-DragDropCard-Word')))
+            tCards = WebDriverWait(driver=self.driver, timeout=10).until(EC.presence_of_all_elements_located((By.CLASS_NAME, 'View-DragDropCard-Word')))
         except:
             return
         for i in range(len(tCards)):

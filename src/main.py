@@ -3,22 +3,23 @@ from selenium.webdriver.support.ui import WebDriverWait
 import os
 import requests
 import traceback
-from selenium import webdriver
 import time
 
 import transition
 import lesson
 import data
 
-def main(aDriver) -> None:
+def main(aDriver:webdriver.Remote) -> None:
+    tWait = WebDriverWait(driver=aDriver, timeout=30)
+
     tUrl = "https://atr.meijo-u.net"
-    if requests.get(tUrl).status_code != 200:
+    if requests.get(url=tUrl).status_code != 200:
         print(tUrl + "にアクセスできませんでした。")
         return
-    aDriver.get(tUrl)
+    aDriver.get(url=tUrl)
 
     try:
-        transition.Login(aDriver)
+        transition.Login(aWait=tWait)
     except:
         traceback.print_exc()
         print("IDやPASSWORDか異なっている可能性があります。\n.envを確認し間違っている場合は.envを書き換え\ndocker-compose up -d --build\nを実行してください")
@@ -26,21 +27,29 @@ def main(aDriver) -> None:
     print("ログイン成功")
 
     try:
-        tResult,tPart = transition.ClassCoursePart(aDriver)
+        tMsg = transition.Setting(aDriver=aDriver,aWait=tWait)
+    except:
+        traceback.print_exc()
+        return
+    print("設定のメッセージの表示を編集し、以下のチェックを外しました。")
+    print("(チェックしたものが学習後表示されます)")
+    print(tMsg)
+
+    try:
+        tResult,tPart = transition.ClassCoursePart(aWait=tWait)
     except:
         traceback.print_exc()
         return
     print(f"{tResult}に移動")
 
     try:
-        tBaseDataPath = data.GetBaseDataPath(tResult[1],tPart)
+        tBaseDataPath = data.GetBaseDataPath(aCourse=tResult[1],aPart=tPart)
     except:
         traceback.print_exc()
         return
 
     try:
-        tWait = WebDriverWait(driver=tDriver, timeout=30)
-        tResult,tLessResult = lesson.DoLesson(aDriver,tWait,tBaseDataPath)
+        tResult,tLessResult = lesson.DoLesson(aDriver=aDriver,aWait=tWait,aBaseDataPath=tBaseDataPath)
     except:
         traceback.print_exc()
         return
@@ -60,7 +69,7 @@ if __name__ == "__main__":
             command_executor = os.environ["SELENIUM_URL"],
             options = webdriver.ChromeOptions()
         )
-        main(tDriver)
+        main(aDriver=tDriver)
     finally:
         tDriver.quit()
         print(f"経過時間：{format((time.time() - tStartTime)/60, '.2f')}分")

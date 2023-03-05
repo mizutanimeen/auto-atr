@@ -79,11 +79,11 @@ https://blog.mogmet.com/github-abecedarian-send-pull-request/
 - https://qiita.com/ha_ru/items/86dfaae4c92e4a7be13f
 - https://pandas.pydata.org/docs/user_guide/index.html#user-guide
 - https://blog.mogmet.com/github-abecedarian-send-pull-request/
+- https://kurozumi.github.io/selenium-python/api.html#module-selenium.webdriver.remote.webelement
 
 ## メモ書き
 - pythonの書き方わからん
 - printの場所もう少し整理する
 - テストスクリプト作る
 - 終了判定を実行中の要素取得にした方が時間の自由度上がる
-- スタンプが増えたよエレメント <a href="javascript:void(0)">閉じる</a>
-- 設定からメッセージの表示を制限できるからこれで設定いける
+- https://kurozumi.github.io/selenium-python/navigating.html ドラックアンドドロップ

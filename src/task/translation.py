@@ -14,7 +14,7 @@ class TaskManager():
     wait: WebDriverWait
     filePath: str
     data: pd.DataFrame
-    columnName: list[str]#[questionColumnName,selectionColumnName]
+    columnName: list[str] #[questionColumnName,selectionColumnName]
 
     def __init__(self,aDriver: webdriver.Remote,aWait: WebDriverWait,aBaseDataPath: str,aColumnName: list[str]) -> None:
         if not len(aColumnName) == 2:
@@ -60,13 +60,13 @@ class TaskManager():
 
     def TaskRun(self) -> None:
         try: #終了判定
-            _ = WebDriverWait(self.driver, 5).until(EC.presence_of_all_elements_located((By.CLASS_NAME,"View-ResultNavi")))
+            _ = WebDriverWait(driver=self.driver, timeout=5).until(EC.presence_of_all_elements_located((By.CLASS_NAME,"View-ResultNavi")))
             return
         except: pass
 
         self.ReadData()
         tQuestionElement = self.wait.until( EC.presence_of_element_located((By.CLASS_NAME,'View-TrialExamination')) )
-        tSelectionsElement = util.GetSelectionsElement(self.driver)
+        tSelectionsElement = util.GetSelectionsElement(aWait=self.wait)
         print(tQuestionElement.text) # ログの出し方どうなん
         
         #見ずらいから外に出しとく
@@ -88,13 +88,13 @@ class TaskManager():
         tOldSelectionsText = [aSelectionsElement[0].text,aSelectionsElement[1].text]
         aSelectionsElement[0].click()
         try: #終了判定
-            _ = WebDriverWait(self.driver, 5).until(EC.presence_of_all_elements_located((By.CLASS_NAME,"View-ResultNavi")))
+            _ = WebDriverWait(driver=self.driver, timeout=5).until(EC.presence_of_all_elements_located((By.CLASS_NAME,"View-ResultNavi")))
             self.SaveData(tOldQuestionText,tOldSelectionsText[0])
             return True
         except: pass
         
         tQuestionElement = self.wait.until(EC.presence_of_element_located((By.CLASS_NAME,'View-TrialExamination')))
-        tSelectionsElement = util.GetSelectionsElement(self.driver)
+        tSelectionsElement = util.GetSelectionsElement(aWait=self.wait)
         
         #間違っていた場合
         if tOldQuestionText == tQuestionElement.text: 
@@ -123,7 +123,7 @@ class TaskManager():
             self.data.loc[tEquals, self.columnName[1]] = tSelectionsText[0] #間違っていた時のために予めローカルデータを書き換えておく
     
         try: #終了判定
-            _ = WebDriverWait(self.driver, 5).until(EC.presence_of_all_elements_located((By.CLASS_NAME,"View-ResultNavi")))
+            _ = WebDriverWait(driver=self.driver, timeout=5).until(EC.presence_of_all_elements_located((By.CLASS_NAME,"View-ResultNavi")))
             return True
         except: pass
 

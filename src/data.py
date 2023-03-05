@@ -10,14 +10,14 @@ def GetBaseDataPath(aCourse,aPart):
     tBaseDataPath += f"{tSG[0]}p{aPart}"
     return tBaseDataPath
 
-def FileEnJpIfNotExistCreate(aPath):
+def TranslationFileIfNotExistCreate(aPath):
     if not os.path.isfile(aPath):   
         with open(aPath, "w") as f:   # ファイルを作成
             f.write('english,japanese\n')#直書きしてるのよくない
     return
 
 #空白の要素や英語、日本語以外のカラム削除、重複データ削除
-def DataEnJpOrganization(aPath): 
+def TranslationDataOrganization(aPath): 
     tData = pd.read_csv(aPath, sep=",", encoding='utf_8')
     tData = tData.loc[:,["english","japanese"]]#直書きしてるのよくない
     tData = tData.dropna(how='any',axis=0)

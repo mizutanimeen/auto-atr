@@ -11,37 +11,6 @@ import task
 
 BASE_POINT = 80 #今後変えるかもしれないから定数に念のためしておく
 
-def taskOneTwoRun(aDriver: webdriver.Remote,aWait: WebDriverWait,aFilePath: str,aColumnName: str[2]) -> None:
-    try: #終了判定
-        _ = WebDriverWait(aDriver, 5).until(EC.presence_of_all_elements_located((By.CLASS_NAME,"View-ResultNavi")))
-        return
-    except: pass
-
-    tData = pd.read_csv(aFilePath, sep=",", encoding='utf_8')
-    tQuestionElement = WebDriverWait(aDriver, 30).until( EC.presence_of_element_located((By.CLASS_NAME,'View-TrialExamination')) )
-    tSelectionsElement = util.GetSelectionsElement(aDriver)
-    print(tQuestionElement.text)
-
-    if tData[tData[aColumnName[0]] == tQuestionElement.text].empty: #データがない場合
-        if task.TaskOneTwoNotExistData(aDriver,tData,aFilePath,tQuestionElement,tSelectionsElement,aColumnName):
-            return
-    else: #データがある場合
-        if task.TaskOneTwoExistData(aDriver,tData,aFilePath,tQuestionElement,tSelectionsElement,aColumnName):
-            return
-
-    taskOneTwoRun(aDriver,aWait,aFilePath,aColumnName) #再帰
-#単語訳：英日
-#単語訳：日英
-def taskOneTwo(aDriver,aWait,aBaseDataPath,aColumnName):
-    tFilePath = aBaseDataPath + "je.csv"
-    data.FileEnJpIfNotExistCreate(tFilePath)
-    data.DataEnJpOrganization(tFilePath)
-    aWait.until(EC.presence_of_all_elements_located) #whileの中ではページ遷移してないから使えなさそう
-
-    print("回答開始")
-    taskOneTwoRun(aDriver,aWait,tFilePath,aColumnName)
-    return
-
 def taskThreeRun(aDriver, aFilePath):
     try: #終了判定
         _ = WebDriverWait(aDriver, 5).until(EC.presence_of_all_elements_located((By.CLASS_NAME,"View-ResultNavi")))
@@ -103,7 +72,14 @@ def taskFour(aDriver,aWait):
     taskFourRun(aDriver,aWait)
     return
 
-def taskFinish(aDriver):
+def taskStart(aDriver) -> None:
+    tStartBtn = WebDriverWait(aDriver, 30).until(
+        EC.presence_of_element_located((By.XPATH, "/html/body/div[3]/div[1]/div/div/div[2]"))
+    )
+    tStartBtn.click()
+    return 
+
+def taskFinish(aDriver) -> int:
     tScore = WebDriverWait(aDriver, 30).until( EC.presence_of_element_located((By.CLASS_NAME, "View-Header-ResultScoreValue")) )
     tScore = int(tScore.text)
     if tScore == 100:
@@ -114,16 +90,16 @@ def taskFinish(aDriver):
     return tScore
 
 def doTask(aDriver,aWait,aTaskName,aBaseDataPath):
-    tStartBtn = WebDriverWait(aDriver, 30).until(
-        EC.presence_of_element_located((By.XPATH, "/html/body/div[3]/div[1]/div/div/div[2]"))
-    )
-    tStartBtn.click()
+    taskStart(aDriver=aDriver)
+    aWait.until(EC.presence_of_all_elements_located)
+    print("回答開始")
+    
     if aTaskName == "単語訳：英日": #ここら辺の名前の分岐、BW03みたいなやつ参照の方がよい？
         tColumnName = ["english","japanese"] #これよくなさそう
-        taskOneTwo(aDriver,aWait,aBaseDataPath,tColumnName)
+        tTaskManager = task.TranslationTaskManager(aDriver=aDriver,aWait=aWait,aFilePath=aBaseDataPath,aColumnName=tColumnName)
     elif aTaskName == "単語訳：日英":
         tColumnName = ["japanese","english"] #これよくなさそう
-        taskOneTwo(aDriver,aWait,aBaseDataPath,tColumnName)
+        tTaskManager = task.TranslationTaskManager(aDriver=aDriver,aWait=aWait,aFilePath=aBaseDataPath,aColumnName=tColumnName)
     elif aTaskName == "（聴）単語訳":
         taskThree(aDriver,aWait,aBaseDataPath)
     elif aTaskName == "（聴）語句並べ替え":
@@ -132,6 +108,9 @@ def doTask(aDriver,aWait,aTaskName,aBaseDataPath):
         taskFour(aDriver,aWait)
     else:
         raise ValueError(f"想定していない問題:{aTaskName}")
+    
+    tTaskManager.TaskRun()
+
     return taskFinish(aDriver)
 
 #指定パートの８０点未満の問題全てやる

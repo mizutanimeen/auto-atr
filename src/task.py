@@ -1,83 +1,117 @@
+import selenium
+from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import pandas as pd
 import util
 
-class TaskManager():
-    driver = None
-    wait = None
-    filePath = None
-    data = None
+import data
 
-    def __init__(self,aDriver,afilePath,aWait) -> None:
+class TranslationTaskManager():
+    driver: webdriver.Remote
+    wait: WebDriverWait
+    filePath: str
+    data: pd.DataFrame
+    columnName: str[2] #[questionColumnName,selectionColumnName]
+
+    def __init__(self,aDriver: webdriver.Remote,aWait: WebDriverWait,aBaseDataPath: str,aColumnName: str[2]) -> None:
         self.driver = aDriver
         self.wait = aWait
-        self.filePath = afilePath
-    
+        self.filePath = aBaseDataPath + "je.csv"
+        self.columnName = aColumnName
 
-#みずらい変数名なんとかしないと
-def TaskOneTwoNotExistData(aDriver,aData,aFilePath,aQuestionElement,aSelectionsElement,aColumnName):
-    tOldQuestionText = aQuestionElement.text
-    tOldSelectionsText = [aSelectionsElement[0].text,aSelectionsElement[1].text]
-    aSelectionsElement[0].click()
-    try: #終了判定
-        _ = WebDriverWait(aDriver, 5).until(EC.presence_of_all_elements_located((By.CLASS_NAME,"View-ResultNavi")))
-        tNewData = pd.DataFrame(
-            data={aColumnName[0]: [tOldQuestionText], 
-                aColumnName[1]: [tOldSelectionsText[0]]}
-        )
-        aData = pd.concat([aData,tNewData],ignore_index=True)
-        aData.to_csv(aFilePath, index = False, encoding='utf_8')
-        return True
-    except: pass
+        data.TranslationFileIfNotExistCreate(self.filePath)
+        data.TranslationDataOrganization(self.filePath)
+        return 
     
-    tQuestionElement = WebDriverWait(aDriver, 30).until(
-        EC.presence_of_element_located((By.CLASS_NAME,'View-TrialExamination'))
-    )
-    tSelectionsElement = util.GetSelectionsElement(aDriver)
+    def ReadData(self) -> None:
+        tData = pd.read_csv(self.filePath, sep=",", encoding='utf_8')
+        self.data = tData
+        return 
     
-    #間違っていた場合
-    if tOldQuestionText == tQuestionElement.text: 
-        tSelectionsElement[1].click() if tOldSelectionsText[0] == tSelectionsElement[0].text else tSelectionsElement[0].click()
+    def SaveData(self,aQuestionText:str,aSelectionText:str) -> None:
         tNewData = pd.DataFrame(
-            data={aColumnName[0]: [tOldQuestionText], 
-                aColumnName[1]: [tOldSelectionsText[1]]}
+            data={self.columnName[0]: [aQuestionText], 
+                self.columnName[1]: [aSelectionText]}
         )
-   
-    #合っていた場合
-    else:
-        tNewData = pd.DataFrame(
-            data={aColumnName[0]: [tOldQuestionText], 
-                aColumnName[1]: [tOldSelectionsText[0]]}
-        )
+        self.data = pd.concat([self.data,tNewData],ignore_index=True)
+        self.data.to_csv(self.filePath, index = False, encoding='utf_8')
+        return 
+
+    def TaskRun(self) -> None:
+        try: #終了判定
+            _ = WebDriverWait(self.driver, 5).until(EC.presence_of_all_elements_located((By.CLASS_NAME,"View-ResultNavi")))
+            return
+        except: pass
+
+        self.ReadData()
+        tQuestionElement = self.wait.until( EC.presence_of_element_located((By.CLASS_NAME,'View-TrialExamination')) )
+        tSelectionsElement = util.GetSelectionsElement(self.driver)
+        print(tQuestionElement.text) # ログの出し方どうなん
         
-    aData = pd.concat([aData,tNewData],ignore_index=True)
-    aData.to_csv(aFilePath, index = False, encoding='utf_8')
-    return False
+        #見ずらいから外に出しとく
+        tQuestionData = self.data[self.columnName[0]]
+        tEquals = (tQuestionData == tQuestionElement.text)
 
-def TaskOneTwoExistData(aDriver,aData,aFilePath,aQuestionElement,aSelectionsElement,aColumnName):
-    tOldQuestionText = aQuestionElement.text
+        if self.data[tEquals].empty: #データがない場合
+            if self.TaskNotExistData(self,tQuestionElement,tSelectionsElement):
+                return
+        else: #データがある場合
+            if self.TaskExistData(self,tQuestionElement,tSelectionsElement):
+                return
 
-    if aData[aData[aColumnName[0]] == aQuestionElement.text][aColumnName[1]].iat[0] == aSelectionsElement[0].text:
+        self.TaskRun() #再帰
+        return 
+
+    def TaskNotExistData(self,aQuestionElement,aSelectionsElement) -> bool:
+        tOldQuestionText = aQuestionElement.text
+        tOldSelectionsText = [aSelectionsElement[0].text,aSelectionsElement[1].text]
         aSelectionsElement[0].click()
-        aData.loc[aData[aColumnName[0]] == tOldQuestionText,aColumnName[1]] = aSelectionsElement[1].text
-    elif aData[aData[aColumnName[0]] == aQuestionElement.text][aColumnName[1]].iat[0] == aSelectionsElement[1].text:
-        aSelectionsElement[1].click()
-        aData.loc[aData[aColumnName[0]] == tOldQuestionText,aColumnName[1]] = aSelectionsElement[0].text
-   
-    try: #終了判定
-        _ = WebDriverWait(aDriver, 5).until(EC.presence_of_all_elements_located((By.CLASS_NAME,"View-ResultNavi")))
-        return True
-    except: pass
-    tQuestionElement = WebDriverWait(aDriver, 30).until(
-        EC.presence_of_element_located((By.CLASS_NAME,'View-TrialExamination'))
-    )
-    # データがおかしい時
-    if tQuestionElement.text == tOldQuestionText:
-        aData.to_csv(aFilePath, index = False, encoding='utf_8')
-    return False
-                
+        try: #終了判定
+            _ = WebDriverWait(self.driver, 5).until(EC.presence_of_all_elements_located((By.CLASS_NAME,"View-ResultNavi")))
+            self.SaveData(tOldQuestionText,tOldSelectionsText[0])
+            return True
+        except: pass
+        
+        tQuestionElement = self.wait.until(EC.presence_of_element_located((By.CLASS_NAME,'View-TrialExamination')))
+        tSelectionsElement = util.GetSelectionsElement(self.driver)
+        
+        #間違っていた場合
+        if tOldQuestionText == tQuestionElement.text: 
+            tSelectionsElement[1].click() if tOldSelectionsText[0] == tSelectionsElement[0].text else tSelectionsElement[0].click()
+            self.SaveData(tOldQuestionText,tOldSelectionsText[1])
+        #合っていた場合
+        else:
+            self.SaveData(tOldQuestionText,tOldSelectionsText[0])
+
+        return False   
+
+    def TaskExistData(self,aQuestionElement,aSelectionsElement) -> bool:
+        tOldQuestionText = aQuestionElement.text
+        tSelectionsText = [aSelectionsElement[0].text,aSelectionsElement[1].text]
+        #見ずらいから外に出しとく
+        tQuestionData = self.data[self.columnName[0]]
+        tEquals = (tQuestionData == tOldQuestionText)
+        tSelectionOfEquals = self.data[tEquals][self.columnName[1]].iat[0]
+
+        if tSelectionOfEquals == tSelectionsText[0]:
+            aSelectionsElement[0].click()
+            self.data.loc[tEquals, self.columnName[1]] = tSelectionsText[1] #間違っていた時のために予めローカルデータを書き換えておく
+        elif tSelectionOfEquals == tSelectionsText[1]:
+            aSelectionsElement[1].click()
+            self.data.loc[tEquals, self.columnName[1]] = tSelectionsText[0] #間違っていた時のために予めローカルデータを書き換えておく
+    
+        try: #終了判定
+            _ = WebDriverWait(self.driver, 5).until(EC.presence_of_all_elements_located((By.CLASS_NAME,"View-ResultNavi")))
+            return True
+        except: pass
+
+        tQuestionElement = self.wait.until(EC.presence_of_element_located((By.CLASS_NAME,'View-TrialExamination')))
+        if tQuestionElement.text == tOldQuestionText: # 間違っていた時
+            self.data.to_csv(self.filePath, index = False, encoding='utf_8')# 間違いが確定したためファイルに保存する
+
+        return False
 
 def TaskThreeNotExistData(aDriver,aData,aFilePath,aSelectionsElement,aOldSelectionsText):
     aSelectionsElement[0].click()

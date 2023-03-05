@@ -87,3 +87,4 @@ https://blog.mogmet.com/github-abecedarian-send-pull-request/
 - クラス化する
 - 関数の返り値書く
 - WebDriverWait(aDriver, 30)をaWaitで置き換えられる
+- テストスクリプト作る

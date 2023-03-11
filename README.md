@@ -1,4 +1,4 @@
-# Auto-ATR
+<img src="./images/auto-atr-logo.png">
 
 ## 概要
 ### バージョン v1.0.0
@@ -83,3 +83,4 @@ CTRL + C
 - 終了判定を実行中の要素取得にした方が時間の自由度上がる
 - https://kurozumi.github.io/selenium-python/navigating.html ドラックアンドドロップ
 - lesson.pyに含まれているtask関係の関数をtaskに移す
+- 実行するタスクの種類を限定できるように

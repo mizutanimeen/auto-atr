@@ -70,12 +70,6 @@ CTRL + C
 ## 答えデータ
 このプログラムは答えが存在しない場合、１回目間違えながら答えを制作し、２回目から正解していく設計になっています。
 
-## 参考URL
-- https://qiita.com/ha_ru/items/86dfaae4c92e4a7be13f
-- https://pandas.pydata.org/docs/user_guide/index.html#user-guide
-- https://blog.mogmet.com/github-abecedarian-send-pull-request/
-- https://kurozumi.github.io/selenium-python/api.html#module-selenium.webdriver.remote.webelement
-
 ## メモ書き
 - pythonの書き方わからん
 - printの場所もう少し制限する

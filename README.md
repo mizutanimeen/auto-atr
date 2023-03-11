@@ -1,5 +1,8 @@
 # Auto-ATR
 
+<img src="./images/auto-atr-logo.png">
+<br>
+
 ## 概要
 ### バージョン v1.0.0
 英語の課題として課せられる[ATR-CALL](https://atr.meijo-u.net/)を自動で解いてくれるプロジェクトです。

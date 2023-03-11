@@ -1,5 +1,4 @@
 <img src="./images/auto-atr-logo.png">
-<br>
 
 ## 概要
 ### バージョン v1.0.0

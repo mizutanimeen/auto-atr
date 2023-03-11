@@ -1,5 +1,3 @@
-# Auto-ATR
-
 <img src="./images/auto-atr-logo.png">
 <br>
 

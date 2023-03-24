@@ -1,4 +1,3 @@
-import selenium
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -10,11 +9,29 @@ def Login(aWait: WebDriverWait) -> None:
     #ログイン動作
     tIdInput = aWait.until(EC.presence_of_element_located((By.ID, "id")))
     tIdInput.clear()
-    tIdInput.send_keys(os.environ['ID'])
+    tID = ""
+    try:
+        tID = os.environ['ID']
+    except:
+        pass
+    finally:
+        if tID == "":
+            print(".envにIDが入力されていないためココで入力してください。")
+            tID = input('>> ')
+    tIdInput.send_keys(tID)
     
     tPassInput = aWait.until(EC.presence_of_element_located((By.ID, "pw")))
     tPassInput.clear()
-    tPassInput.send_keys(os.environ['PASSWORD'])
+    tPassword = ""
+    try:
+        tPassword = os.environ['PASSWORD']
+    except:
+        pass
+    finally:
+        if tPassword == "":
+            print(".envにPASSWORDが入力されていないためココで入力してください。")
+            tPassword = input('>> ')
+    tPassInput.send_keys(tPassword)
 
     tSendBtn = aWait.until(EC.element_to_be_clickable((By.ID, "submit-button")))
     tSendBtn.click()

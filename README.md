@@ -1,15 +1,13 @@
 <img src="./images/auto-atr-logo.png">
 
 ## 概要
-### バージョン v1.0.0
+### バージョン v1.1.0
 英語の課題として課せられる[ATR-CALL-BRIX](https://atr.meijo-u.net/)を自動で解いてくれるプロジェクトです。
 
 ## 実行
 
 ### 必要設定
 お手元の環境で`docker`を使えるようにしてください。
-
-`.env`ファイルを`.sample_env`ファイルを参考に`docker-compose.yml`と同じディレクトリに作成してください。
 
 ### 実行コマンド
 `docker-compose.yml`と同じディレクトリで以下のコマンドを実行してください。
@@ -18,6 +16,7 @@ docker-compose up -d --build
 docker exec -it auto-atr bash
 python main.py
 ```
+
 その後、プロンプト上でクラス、コース、パートを選択してください。
 
 例
@@ -32,14 +31,19 @@ python main.py
 >>
 ```
 
+### 操作の省略
+`.env`ファイルを`.sample_env`ファイルを参考に`docker-compose.yml`と同じディレクトリに作成するとコマンドライン上での操作を省略できます。
+
+`.env`の変更を反映させるためには変更後`docker-compose up -d --build`を実行する必要があります。
+
 ### ブラウザで動作を確認
 http://localhost:7900/ にアクセスし接続を押せばブラウザ上で動作を確認できます。
 
 このポートはdocker-compose.yml内で定義されているので7900番が使用されている場合は変えてください。他のポートも同様です。
 
-### 中止コマンド（長押し）
+### 中止コマンド
 ```
-CTRL + C 
+CTRL + C （長押し）
 ```
 中止しても完了したレッスンは保存されます。
 

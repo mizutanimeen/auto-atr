@@ -10,7 +10,7 @@ BASE_POINT = 80
 
 #指定パートの８０点未満の問題全てやる
 def DoLesson(aDriver: webdriver.Remote,aWait: WebDriverWait,aBaseDataPath:str):# -> list,list
-    tResult = []
+    tALLResult = []
     tLessResult = []
     tTaskLen = 0
 
@@ -34,10 +34,10 @@ def DoLesson(aDriver: webdriver.Remote,aWait: WebDriverWait,aBaseDataPath:str):#
                 tScore = task.Do(aDriver=aDriver,aWait=aWait,aTaskName=tTaskName,aBaseDataPath=aBaseDataPath)
 
                 print(f"結果{tScore}点")
-                tResult.append(f"[レッスン{i+1}]<{tTaskName}>:{tScore}点")
+                tALLResult.append(f"[レッスン{i+1}]<{tTaskName}>:{tScore}点")
                 if tScore < BASE_POINT:
                     tLessResult.append(f"[レッスン{i+1}]<{tTaskName}>:{tScore}点")
                     
                 time.sleep(1)
 
-    return tResult,tLessResult
+    return tALLResult,tLessResult

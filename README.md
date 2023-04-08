@@ -32,9 +32,9 @@ python main.py
 ```
 
 ### 操作の省略
-`.env`ファイルを`.sample_env`ファイルを参考に`docker-compose.yml`と同じディレクトリに作成するとコマンドライン上での操作を省略できます。
+`.env`ファイルにデータを記述すると操作中の入力を省略できます。
 
-`.env`の変更を反映させるためには変更後`docker-compose up -d --build`を実行する必要があります。
+`.env`の変更を反映させるためには変更後`docker-compose up -d`を実行する必要があります。
 
 ### ブラウザで動作を確認
 http://localhost:7900/ にアクセスし接続を押せばブラウザ上で動作を確認できます。
@@ -83,3 +83,4 @@ CTRL + C （長押し）
 - https://kurozumi.github.io/selenium-python/navigating.html ドラックアンドドロップ
 - lesson.pyに含まれているtask関係の関数をtaskに移す
 - 実行するタスクの種類を限定できるように
+- docker のイメージ少なくする

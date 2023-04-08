@@ -44,13 +44,13 @@ def main(aDriver:webdriver.Remote) -> None:
     print(f"{tResult}に移動")
 
     try:
-        tBaseDataPath = data.GetBaseDataPath(aCourse=tResult[1],aPart=tPart)
+        tBaseDataPath = data.GetBasePath(aCourse=tResult[1],aPart=tPart)
     except:
         traceback.print_exc()
         return
 
     try:
-        tResult,tLessResult = lesson.DoLesson(aDriver=aDriver,aWait=tWait,aBaseDataPath=tBaseDataPath)
+        tResult,tLessResult = lesson.Do(aDriver=aDriver,aWait=tWait,aBaseDataPath=tBaseDataPath)
     except:
         traceback.print_exc()
         return

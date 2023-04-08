@@ -13,7 +13,7 @@ class TaskManager():
         self.wait = aWait
         return 
 
-    def TaskRun(self) -> None:
+    def Run(self) -> None:
         try:
             tCards = WebDriverWait(driver=self.driver, timeout=10).until(EC.presence_of_all_elements_located((By.CLASS_NAME, 'View-DragDropCard-Word')))
         except:
@@ -26,5 +26,5 @@ class TaskManager():
             tBtn.click()
             time.sleep(3)
 
-        self.TaskRun()
+        self.Run()
         return

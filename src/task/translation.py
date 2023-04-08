@@ -58,7 +58,7 @@ class TaskManager():
         self.data.to_csv(self.filePath, index = False, encoding='utf_8')
         return 
 
-    def TaskRun(self) -> None:
+    def Run(self) -> None:
         try: #終了判定
             _ = WebDriverWait(driver=self.driver, timeout=5).until(EC.presence_of_all_elements_located((By.CLASS_NAME,"View-ResultNavi")))
             return
@@ -66,7 +66,7 @@ class TaskManager():
 
         self.ReadData()
         tQuestionElement = self.wait.until( EC.presence_of_element_located((By.CLASS_NAME,'View-TrialExamination')) )
-        tSelectionsElement = util.GetSelectionsElement(aWait=self.wait)
+        tSelectionsElement = util.GetSelectionElements(aWait=self.wait)
         print(tQuestionElement.text) # ログの出し方どうなん
         
         #見ずらいから外に出しとく
@@ -80,7 +80,7 @@ class TaskManager():
             if self.TaskExistData(tQuestionElement,tSelectionsElement):
                 return
 
-        self.TaskRun() #再帰
+        self.Run() #再帰
         return 
 
     def TaskNotExistData(self,aQuestionElement,aSelectionsElement) -> bool:
@@ -94,7 +94,7 @@ class TaskManager():
         except: pass
         
         tQuestionElement = self.wait.until(EC.presence_of_element_located((By.CLASS_NAME,'View-TrialExamination')))
-        tSelectionsElement = util.GetSelectionsElement(aWait=self.wait)
+        tSelectionsElement = util.GetSelectionElements(aWait=self.wait)
         
         #間違っていた場合
         if tOldQuestionText == tQuestionElement.text: 

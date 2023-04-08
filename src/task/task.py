@@ -43,6 +43,6 @@ def Do(aDriver: webdriver.Remote,aWait: WebDriverWait,aTaskName:str,aBaseDataPat
     else:
         raise ValueError(f"想定していない問題:{aTaskName}")
     
-    tTaskManager.TaskRun()
+    tTaskManager.Run()
 
     return finish(aWait=aWait)

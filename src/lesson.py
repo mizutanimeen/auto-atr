@@ -9,7 +9,7 @@ import task.task as task
 BASE_POINT = 80
 
 #指定パートの８０点未満の問題全てやる
-def DoLesson(aDriver: webdriver.Remote,aWait: WebDriverWait,aBaseDataPath:str):# -> list,list
+def Do(aDriver: webdriver.Remote,aWait: WebDriverWait,aBaseDataPath:str):# -> list,list
     tALLResult = []
     tLessResult = []
     tTaskLen = 0

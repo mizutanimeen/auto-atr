@@ -60,14 +60,14 @@ class TaskManager():
         self.data.to_csv(path_or_buf=self.filePath, index = False, encoding='utf_8')
         return 
 
-    def TaskRun(self) -> None:
+    def Run(self) -> None:
         try: #終了判定
             _ = WebDriverWait(driver=self.driver, timeout=5).until(EC.presence_of_all_elements_located((By.CLASS_NAME,"View-ResultNavi")))
             return
         except: pass
 
         self.ReadData()
-        tSelectionsElement = util.GetSelectionsElement(aWait=self.wait)
+        tSelectionsElement = util.GetSelectionElements(aWait=self.wait)
         tOldSelectionsText = [tSelectionsElement[0].text,tSelectionsElement[1].text]
 
         tEqualsList = []
@@ -82,7 +82,7 @@ class TaskManager():
             if self.TaskExistData(tSelectionsElement,tOldSelectionsText):
                 return
 
-        self.TaskRun()
+        self.Run()
         return
 
     def TaskNotExistData(self,aSelectionsElement,aOldSelectionsText) -> bool:
@@ -93,7 +93,7 @@ class TaskManager():
             return True
         except: pass
         
-        tSelectionsElement = util.GetSelectionsElement(aWait=self.wait)
+        tSelectionsElement = util.GetSelectionElements(aWait=self.wait)
 
         tEqualsList = []
         tEqualsList.append((tSelectionsElement[0].text == aOldSelectionsText[0]) or (tSelectionsElement[0].text == aOldSelectionsText[1]))
@@ -125,7 +125,7 @@ class TaskManager():
             return True
         except: pass
 
-        tSelectionsElement = util.GetSelectionsElement(aWait=self.wait)
+        tSelectionsElement = util.GetSelectionElements(aWait=self.wait)
 
         tEqualsList = []
         for i,j in [[0,0],[0,1],[1,0],[1,1]]:

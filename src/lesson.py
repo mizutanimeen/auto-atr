@@ -4,55 +4,13 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
 
-import task.translation as translation
-import task.listen as listen
-import task.sort as sort
+import task.task as task
 
 BASE_POINT = 80
 
-def taskStart(aWait: WebDriverWait) -> None:
-    tStartBtn = aWait.until(EC.presence_of_element_located((By.XPATH, "/html/body/div[3]/div[1]/div/div/div[2]")))
-    tStartBtn.click()
-    aWait.until(EC.presence_of_all_elements_located)
-    return 
-
-def taskFinish(aWait: WebDriverWait) -> int:
-    tScoreElement = aWait.until( EC.presence_of_element_located((By.CLASS_NAME, "View-Header-ResultScoreValue")) )
-    tScore = int(tScoreElement.text)
-    if tScore == 100:
-        tEndBtn = aWait.until( EC.presence_of_element_located((By.XPATH, "/html/body/div[3]/div[1]/div/div/div[2]/div")) )
-    else:
-        tEndBtn = aWait.until( EC.presence_of_element_located((By.XPATH, "/html/body/div[3]/div[1]/div/div/div[2]/div[2]")) )
-    tEndBtn.click()
-    return tScore
-
-def doTask(aDriver: webdriver.Remote,aWait: WebDriverWait,aTaskName:str,aBaseDataPath:str) -> int:
-    taskStart(aWait=aWait)
-    
-    print("回答開始")
-    
-    if aTaskName == "単語訳：英日": #ここら辺の名前の分岐、BW03みたいなやつ参照の方がよい？
-        tColumnName = ["english","japanese"] #これよくなさそう
-        tTaskManager = translation.TaskManager(aDriver=aDriver,aWait=aWait,aBaseDataPath=aBaseDataPath,aColumnName=tColumnName)
-    elif aTaskName == "単語訳：日英":
-        tColumnName = ["japanese","english"] #これよくなさそう
-        tTaskManager = translation.TaskManager(aDriver=aDriver,aWait=aWait,aBaseDataPath=aBaseDataPath,aColumnName=tColumnName)
-    elif aTaskName == "（聴）単語訳":
-        tTaskManager = listen.TaskManager(aDriver=aDriver,aWait=aWait,aBaseDataPath=aBaseDataPath)
-    elif aTaskName == "（聴）語句並べ替え":
-        tTaskManager = sort.TaskManager(aDriver=aDriver,aWait=aWait)
-    elif aTaskName == "語句並べ替え":
-        tTaskManager = sort.TaskManager(aDriver=aDriver,aWait=aWait)
-    else:
-        raise ValueError(f"想定していない問題:{aTaskName}")
-    
-    tTaskManager.TaskRun()
-
-    return taskFinish(aWait=aWait)
-
 #指定パートの８０点未満の問題全てやる
-def DoLesson(aDriver: webdriver.Remote,aWait: WebDriverWait,aBaseDataPath:str):# -> list,list
-    tResult = []
+def Do(aDriver: webdriver.Remote,aWait: WebDriverWait,aBaseDataPath:str):# -> list,list
+    tALLResult = []
     tLessResult = []
     tTaskLen = 0
 
@@ -73,13 +31,13 @@ def DoLesson(aDriver: webdriver.Remote,aWait: WebDriverWait,aBaseDataPath:str):#
                 print(f"[レッスン{i+1}]<{tTaskName}>が{BASE_POINT}点未満のため実行")
                 tTasksName[j].click()
 
-                tScore = doTask(aDriver=aDriver,aWait=aWait,aTaskName=tTaskName,aBaseDataPath=aBaseDataPath)
+                tScore = task.Do(aDriver=aDriver,aWait=aWait,aTaskName=tTaskName,aBaseDataPath=aBaseDataPath)
 
                 print(f"結果{tScore}点")
-                tResult.append(f"[レッスン{i+1}]<{tTaskName}>:{tScore}点")
+                tALLResult.append(f"[レッスン{i+1}]<{tTaskName}>:{tScore}点")
                 if tScore < BASE_POINT:
                     tLessResult.append(f"[レッスン{i+1}]<{tTaskName}>:{tScore}点")
                     
                 time.sleep(1)
 
-    return tResult,tLessResult
+    return tALLResult,tLessResult

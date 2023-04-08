@@ -16,7 +16,7 @@ def Login(aWait: WebDriverWait) -> None:
         pass
     finally:
         if tID == "":
-            print(".envにIDが入力されていないためココで入力してください。")
+            print("IDを入力してください。")
             tID = input('>> ')
     tIdInput.send_keys(tID)
     
@@ -29,7 +29,7 @@ def Login(aWait: WebDriverWait) -> None:
         pass
     finally:
         if tPassword == "":
-            print(".envにPASSWORDが入力されていないためココで入力してください。")
+            print("PASSWORDを入力してください。")
             tPassword = input('>> ')
     tPassInput.send_keys(tPassword)
 

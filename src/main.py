@@ -22,7 +22,7 @@ def main(aDriver:webdriver.Remote) -> None:
         transition.Login(aWait=tWait)
     except:
         traceback.print_exc()
-        print("IDやPASSWORDか異なっている可能性があります。\n.envを確認し間違っている場合は.envを書き換え\ndocker-compose up -d --build\nを実行してください")
+        print("IDやPASSWORDか異なっている可能性があります。\n.envを確認し間違っている場合は.envを書き換え\ndocker-compose up -d\nを実行してください")
         return
     print("ログイン成功")
 
@@ -31,9 +31,10 @@ def main(aDriver:webdriver.Remote) -> None:
     except:
         traceback.print_exc()
         return
-    print("設定のメッセージの表示を編集し、以下のチェックを外しました。")
-    print("(チェックしたものが学習後表示されます)")
-    print(tMsg)
+    if len(tMsg) != 0:
+        print("設定のメッセージの表示を編集し、以下のチェックを外しました。")
+        print("(チェックしたものが学習後表示されます)")
+        print(tMsg)
 
     try:
         tResult,tPart = transition.ClassCoursePart(aWait=tWait)

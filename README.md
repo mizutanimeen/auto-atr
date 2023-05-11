@@ -82,3 +82,4 @@ CTRL + C （長押し）
 - 終了判定を実行中の要素取得にした方が時間の自由度上がる
 - https://kurozumi.github.io/selenium-python/navigating.html ドラックアンドドロップ
 - 実行するタスクの種類を限定できるように
+asdfasfd

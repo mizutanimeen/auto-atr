@@ -18,6 +18,7 @@ def Do(aDriver: webdriver.Remote,aWait: WebDriverWait,aBaseDataPath:str):# -> li
         aWait.until(EC.presence_of_all_elements_located)
         tBars = aWait.until(EC.presence_of_all_elements_located((By.CLASS_NAME, 'course-detail-unit-bar')))
         tBars[i].click()
+        time.sleep(0.3)
         if i == 0:
             tTasksScore = aWait.until(EC.presence_of_all_elements_located((By.XPATH, f"/html/body/div[2]/div[2]/div/div[7]/div[{i+1}]/div[2]//div[@class='course-detail-brix-hiscore']")))
             tTaskLen = len(tTasksScore)

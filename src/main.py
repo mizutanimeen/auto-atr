@@ -17,6 +17,7 @@ def main(aDriver:webdriver.Remote) -> None:
         print(tUrl + "にアクセスできませんでした。")
         return
     aDriver.get(url=tUrl)
+    aDriver.maximize_window()
 
     try:
         transition.Login(aWait=tWait)
@@ -49,11 +50,13 @@ def main(aDriver:webdriver.Remote) -> None:
         traceback.print_exc()
         return
 
-    try:
-        tResult,tLessResult = lesson.Do(aDriver=aDriver,aWait=tWait,aBaseDataPath=tBaseDataPath)
-    except:
-        traceback.print_exc()
-        return
+    for i in range(2):
+        print("-----"+i+1+"回目-----")
+        try:
+            tResult,tLessResult = lesson.Do(aDriver=aDriver,aWait=tWait,aBaseDataPath=tBaseDataPath)
+        except:
+            traceback.print_exc()
+            return
     print("-----全ての結果-----")
     for i in tResult:
         print(i)

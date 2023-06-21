@@ -50,8 +50,8 @@ def main(aDriver:webdriver.Remote) -> None:
         traceback.print_exc()
         return
 
-    for i in range(2):
-        print("-----"+i+1+"回目-----")
+    for i in range(1,3):
+        print(f"-----{i}回目-----")
         try:
             tResult,tLessResult = lesson.Do(aDriver=aDriver,aWait=tWait,aBaseDataPath=tBaseDataPath)
         except:

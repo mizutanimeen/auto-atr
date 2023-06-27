@@ -67,7 +67,6 @@ class TaskManager():
         self.ReadData()
         tQuestionElement = self.wait.until( EC.presence_of_element_located((By.CLASS_NAME,'View-TrialExamination')) )
         tSelectionsElement = util.GetSelectionElements(aWait=self.wait)
-        print(tQuestionElement.text) # ログの出し方どうなん
         
         #見ずらいから外に出しとく
         tQuestionData = self.data[self.columnName[0]]
